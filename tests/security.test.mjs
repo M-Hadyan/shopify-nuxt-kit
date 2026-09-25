@@ -402,6 +402,7 @@ describe('لوحة الأدمن', () => {
     assert.ok(!all.includes(ADMIN_PASSWORD))
     assert.ok(!all.includes('ACCESS-TOKEN-PLAINTEXT-CHECK'))
     assert.ok(!all.includes(WEBHOOK_SECRET))
+    assert.ok(all.includes('"tokensOut":500'), 'بيانات عادية انحجبت بالغلط')
   })
 
   test('إيقاف متجر يمنعه، وإهداء تشغيلات يرفع حده، وكلها تنسجل', async () => {

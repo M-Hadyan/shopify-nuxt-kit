@@ -48,7 +48,7 @@ export async function readLogs(ch: LogChannel, limit = 2000): Promise<LogEntry[]
 }
 
 // يحذف أي أسرار محتملة قبل الحفظ
-const SECRET_KEYS = /token|secret|password|authorization|cookie|code/i
+const SECRET_KEYS = /secret|password|passwd|authorization|cookie|api_?key|^(access_?token|refresh_?token|token|code|otp)$/i
 function scrub(data?: Record<string, unknown>) {
   if (!data) return undefined
   const out: Record<string, unknown> = {}

@@ -15,12 +15,14 @@
 | **Prompt injection** | بيانات المتجر محاطة بـ `<store_data>` مع تعليمات صريحة بعدم تنفيذ ما بداخلها | `server/utils/ai.ts` |
 | **XSS** | ناتج الذكاء الاصطناعي ينظف بـ DOMPurify، والروابط تفتح بـ `noopener noreferrer nofollow` | `app/components/MarkdownView.vue` |
 | **الترويسات** | CSP (`frame-ancestors 'none'`، `object-src 'none'`)، HSTS، X-Frame-Options، nosniff، Permissions-Policy، و `no-store` للـ API | `nuxt.config.ts` |
-| **تقرير التكاليف** | مخفي (404) بدون مفتاح ٢٤ حرف أو أكثر، ومقارنة ثابتة الزمن | `server/api/admin/costs.get.ts` |
+| **لوحة الإدارة** | دخول بإيميل + كلمة مرور (scrypt) + 2FA (TOTP)؛ قفل بعد ٥ محاولات لكل IP لمدة ١٥ دقيقة (و٣٠ محاولة إجمالًا)؛ جلسة منفصلة SameSite=Strict لمدة ٨ ساعات؛ كل إجراء ينسجل | `server/utils/admin.ts`، `server/api/admin` |
+| **السجلات** | كل حدث وكل طلب API ينسجل؛ المفاتيح الحساسة (كلمات المرور، التوكنات، الأسرار) تنحجب قبل الحفظ؛ الأحداث الأمنية والأخطاء ترسل تنبيه | `server/utils/logger.ts`، `server/plugins/observability.ts` |
+| **واجهات الإدارة** | مقفلة (401) بدون جلسة أدمن أو `x-admin-token` صحيح | `server/utils/admin.ts` |
 | **خصوصية البيانات** | يُرسل للذكاء الاصطناعي ملخصات مجمّعة فقط، بدون أسماء أو أرقام العملاء. وتنحذف بيانات المتجر عند إلغاء التثبيت | `server/utils/store-api.ts` |
 
 ## الاختبارات
 
-`tests/security.test.mjs` فيه ٢١ اختبار تشتغل على نسخة الإنتاج مع خادم Claude وهمي:
+`tests/security.test.mjs` فيه ٢٩ اختبار تشتغل على نسخة الإنتاج مع خادم Claude وهمي:
 
 ```bash
 npm run test:security

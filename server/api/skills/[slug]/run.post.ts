@@ -97,7 +97,8 @@ async function recordRun(rec: { id: string; demo: boolean }, run: RunRecord, ms:
       metric('runs'),
       metric('cost_milli', costMilli),
       metric('tokens_out', run.usage?.output ?? 0),
-      counterIncrBy(rec.demo ? `cost:demo:${monthKey()}` : storeCostKey(rec.id), costMilli, 40 * 24 * 3600),
+      counterIncrBy(storeCostKey(rec.id), costMilli, 40 * 24 * 3600),
+      rec.demo ? counterIncrBy(`cost:demo:${monthKey()}`, costMilli, 40 * 24 * 3600) : Promise.resolve(0),
       counterIncr(skillRunsKey(run.skill), 40 * 24 * 3600),
       counterIncrBy(skillCostKey(run.skill), costMilli, 40 * 24 * 3600),
     ])
