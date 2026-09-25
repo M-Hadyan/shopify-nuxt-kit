@@ -107,20 +107,25 @@ export interface RunRecord {
   usage?: { input: number; output: number }
 }
 
+export type PlanId = 'starter' | 'growth' | 'pro'
+
 export interface PlanDef {
   id: PlanId
   name: string
-  price: number
+  tagline: string
+  price: number // ر.س شهريًا
+  yearlyPrice: number // ر.س سنويًا
   runsPerMonth: number
+  categories: SkillCategory[] | 'all' // التصنيفات المتاحة
+  effort: 'medium' | 'high' // عمق التحليل
   features: string[]
   highlighted?: boolean
 }
 
-export type PlanId = 'trial' | 'basic' | 'pro' | 'business'
-
 export interface MeResponse {
   store: StoreInfo
   plan: PlanDef
+  status: 'active' | 'trial' | 'expired'
   usage: { month: string; runs: number; limit: number }
   demo: boolean
 }

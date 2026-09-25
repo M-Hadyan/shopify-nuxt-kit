@@ -35,7 +35,8 @@ const faqs = [
   { q: 'هل رواج يعدل على متجري؟', a: 'لا. رواج يقرأ بيانات متجرك فقط عشان يبني عليها التسويق.' },
   { q: 'كيف الدفع؟', a: 'الاشتراك يتم من داخل متجر تطبيقات سلة، والفاتورة تنضاف على حسابك في سلة مثل أي تطبيق.' },
   { q: 'وش البيانات اللي يقرأها رواج؟', a: 'بيانات المتجر، المنتجات، الطلبات، العملاء، السلات المتروكة، التقييمات، والكوبونات. بياناتك ما تُستخدم لأي غرض غير خدمتك.' },
-  { q: 'أقدر أجرب قبل الاشتراك؟', a: 'أكيد. فيه تجربة مجانية عند التثبيت، وتقدر الحين تجرب المتجر التجريبي بدون تسجيل.' },
+  { q: 'أقدر أجرب قبل الاشتراك؟', a: `أكيد. عند التثبيت تاخذ تجربة مجانية ${TRIAL_DAYS} أيام على باقة نمو، وتقدر الحين تجرب المتجر التجريبي بدون تسجيل.` },
+  { q: 'وش الفرق بين الباقات؟', a: 'انطلاقة فيها مهارات المحتوى والإعلانات والاستراتيجية ورفع التحويل. نمو تفتح كل المهارات. احتراف فيها تشغيلات أكثر وتحليل أعمق.' },
 ]
 
 const preview = SKILLS.slice(0, 8)
@@ -158,30 +159,11 @@ const preview = SKILLS.slice(0, 8)
     <!-- الباقات -->
     <section id="pricing" class="py-20">
       <div class="mx-auto max-w-6xl px-4 sm:px-6">
-        <div class="text-center">
-          <h2 class="text-3xl font-bold">باقات تناسب حجم متجرك</h2>
+        <div class="mb-8 text-center">
+          <h2 class="text-3xl font-bold">ثلاث باقات تناسب حجم متجرك</h2>
           <p class="mt-3 text-muted">الاشتراك والفوترة من داخل متجر تطبيقات سلة</p>
         </div>
-        <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          <div
-            v-for="p in PLANS" :key="p.id"
-            class="card relative flex flex-col p-6"
-            :class="p.highlighted && 'border-brand-500/50 ring-4 ring-brand-500/15'"
-          >
-            <span v-if="p.highlighted" class="chip absolute -top-3 right-6 bg-brand-600 text-white">الأكثر طلبًا</span>
-            <h3 class="font-bold">{{ p.name }}</h3>
-            <div class="mt-3 flex items-baseline gap-1">
-              <span class="text-3xl font-bold">{{ p.price ? num(p.price) : 'مجانًا' }}</span>
-              <span v-if="p.price" class="text-sm text-muted">ر.س / شهريًا</span>
-            </div>
-            <ul class="mt-5 flex-1 space-y-2.5 text-sm">
-              <li v-for="f in p.features" :key="f" class="flex items-start gap-2">
-                <AppIcon name="CircleCheck" :size="18" class="mt-0.5 shrink-0 text-accent-500" /> {{ f }}
-              </li>
-            </ul>
-            <a :href="config.public.sallaAppStoreUrl" target="_blank" rel="noopener" class="mt-6" :class="p.highlighted ? 'btn-primary' : 'btn-secondary'">اشترك من سلة</a>
-          </div>
-        </div>
+        <PricingCards />
       </div>
     </section>
 

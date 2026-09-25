@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
       info: { ...DEMO_STORE, id },
       demo: true,
       plan: 'pro',
-      planStatus: 'trial',
+      planStatus: 'active',
       installedAt: new Date().toISOString(),
     })
   }

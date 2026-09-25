@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     },
     demo: false,
     tokens,
-    plan: existing?.plan ?? 'trial',
+    plan: existing?.plan ?? TRIAL_PLAN,
     planStatus: existing?.planStatus ?? 'trial',
     planEndsAt: existing?.planEndsAt,
     installedAt: existing?.installedAt ?? new Date().toISOString(),

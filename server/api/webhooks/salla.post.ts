@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         info: existing?.info ?? { id: storeId, name: `متجر ${storeId}`, domain: '', currency: 'SAR' },
         demo: false,
         tokens,
-        plan: existing?.plan ?? 'trial',
+        plan: existing?.plan ?? TRIAL_PLAN,
         planStatus: existing?.planStatus ?? 'trial',
         planEndsAt: existing?.planEndsAt,
         installedAt: existing?.installedAt ?? now,
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
       await updateStoreRecord(storeId, { uninstalledAt: now, tokens: undefined })
       break
     case 'app.trial.started':
-      await updateStoreRecord(storeId, { plan: 'pro', planStatus: 'trial', planEndsAt: d.end_date })
+      await updateStoreRecord(storeId, { plan: TRIAL_PLAN, planStatus: 'trial', planEndsAt: d.end_date })
       break
     case 'app.trial.expired':
     case 'app.subscription.expired':

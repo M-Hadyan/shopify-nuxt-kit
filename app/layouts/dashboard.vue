@@ -40,7 +40,7 @@ async function signOut() {
 
         <!-- الصف الثاني: الباقة + الشروحات + الإشعارات + الحساب -->
         <div class="flex items-center gap-2">
-          <NuxtLink to="/app/settings" class="badge-gold shrink-0"><AppIcon name="Crown" :size="18" /> {{ me?.plan.name }}</NuxtLink>
+          <NuxtLink to="/app/settings" class="badge-gold shrink-0"><AppIcon name="Crown" :size="18" /> {{ me?.plan.name }}<span v-if="me?.status === 'trial'" class="text-xs font-medium opacity-80">(تجربة)</span></NuxtLink>
           <NuxtLink to="/app/help" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-800/50 px-4 py-2 text-sm font-bold text-brand-300 ring-1 ring-brand-700/40 transition hover:bg-brand-800/70">
             <AppIcon name="CircleHelp" :size="18" /> الشروحات
           </NuxtLink>

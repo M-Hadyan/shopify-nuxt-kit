@@ -10,7 +10,9 @@ const request = ref('')
 const output = ref('')
 const running = ref(false)
 const error = ref('')
-const { refresh: refreshMe } = useMe()
+const { data: me, refresh: refreshMe } = useMe()
+const upgradeTo = computed(() => (me.value && !planAllows(me.value.plan, skill.category) ? planFor(skill.category) : null))
+const config = useRuntimeConfig()
 
 async function run() {
   running.value = true
@@ -72,7 +74,12 @@ function download() {
       <h1 class="mt-4 text-3xl leading-tight font-extrabold sm:text-4xl">{{ skill.title }}</h1>
       <p class="mt-3 text-lg leading-8 text-muted">{{ skill.tagline }}، مبنية على بيانات متجرك في سلة.</p>
 
-      <form class="panel mt-6 p-5" @submit.prevent="run">
+      <div v-if="upgradeTo" class="panel mt-6 p-6">
+        <div class="flex items-center gap-2 font-bold text-gold-300"><AppIcon name="Crown" :size="20" /> متاحة في باقة {{ upgradeTo.name }}</div>
+        <p class="mt-2 leading-7 text-muted">باقتك الحالية ({{ me?.plan.name }}) ما تشمل هذي المهارة. رقّ باقتك من متجر تطبيقات سلة وتنفتح لك فورًا.</p>
+        <a :href="config.public.sallaAppStoreUrl" target="_blank" rel="noopener" class="btn-primary mt-4 w-full rounded-2xl py-3.5 text-base">رقّ إلى {{ upgradeTo.name }} · {{ num(upgradeTo.price) }} ر.س شهريًا</a>
+      </div>
+      <form v-else class="panel mt-6 p-5" @submit.prevent="run">
         <label class="block text-muted" for="req">وش تبي بالضبط؟</label>
         <textarea
           id="req" v-model="request" rows="4"

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const rec = await requireStore(event)
   const skill = getSkill(getRouterParam(event, 'slug')!)
   if (!skill) throw createError({ statusCode: 404, statusMessage: 'المهارة غير موجودة' })
-  await assertQuota(rec)
+  const plan = await assertCanRun(rec, skill)
 
   const body = (await readBody<{ request?: string }>(event)) ?? {}
   const request = String(body.request ?? '').slice(0, 4000)
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
           model,
           max_tokens: 64000,
           thinking: { type: 'adaptive' },
-          output_config: { effort: 'high' },
+          output_config: { effort: plan.effort },
           ...fallbackParams(model),
           system,
           messages: [{ role: 'user', content: skillUserPrompt(skill, context, request) }],

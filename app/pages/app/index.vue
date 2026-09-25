@@ -11,6 +11,9 @@ const list = computed(() => SKILLS.filter(s =>
   && (!q.value.trim() || `${s.title} ${s.tagline} ${s.slug}`.includes(q.value.trim())),
 ))
 const catCount = Object.keys(SKILL_CATEGORIES).length
+const { data: me } = await useMe()
+const lockedTo = (c: SkillCategory) => (me.value && !planAllows(me.value.plan, c) ? planFor(c).name : undefined)
+const available = computed(() => (me.value ? SKILLS.filter(s => planAllows(me.value!.plan, s.category)).length : SKILLS.length))
 </script>
 
 <template>
@@ -28,7 +31,7 @@ const catCount = Object.keys(SKILL_CATEGORIES).length
 
       <div class="panel mt-6 p-6">
         <div class="text-muted">المهارات المتاحة</div>
-        <div class="mt-2 text-6xl font-extrabold tracking-tight text-brand-500" dir="ltr" style="text-align: right">{{ SKILLS.length }}</div>
+        <div class="mt-2 text-6xl font-extrabold tracking-tight text-brand-500" dir="ltr" style="text-align: right">{{ available }}<span v-if="available < SKILLS.length" class="text-3xl text-muted"> / {{ SKILLS.length }}</span></div>
         <div class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 text-sm font-bold text-white">
           {{ num(catCount) }} تصنيفات <AppIcon name="ArrowUpLeft" :size="16" />
         </div>
@@ -54,7 +57,7 @@ const catCount = Object.keys(SKILL_CATEGORIES).length
     </section>
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <SkillCard v-for="s in list" :key="s.slug" :skill="s" />
+      <SkillCard v-for="s in list" :key="s.slug" :skill="s" :locked-to="lockedTo(s.category)" />
     </div>
     <p v-if="!list.length" class="py-10 text-center text-muted">ما فيه مهارات مطابقة.</p>
   </div>
