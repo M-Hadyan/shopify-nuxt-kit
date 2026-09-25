@@ -21,3 +21,18 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run typecheck
       - run: npm run test:security
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t rawaj:ci .
+      - name: Smoke test
+        run: |
+          docker run -d --name rawaj -p 3000:3000 \
+            -e NUXT_SESSION_PASSWORD=ci-session-password-0123456789-abcdef \
+            -e NUXT_TOKEN_ENCRYPTION_KEY=ci-encryption-key-0123456789-abcdef \
+            rawaj:ci
+          for i in $(seq 1 30); do curl -fsS http://localhost:3000/api/health && exit 0; sleep 2; done
+          docker logs rawaj; exit 1

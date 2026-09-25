@@ -55,7 +55,7 @@
 - **Tailwind CSS v4**، واجهة عربية RTL بثيم داكن وأخضر زمردي، وخط Alexandria
 - **Claude API** (`@anthropic-ai/sdk`): `claude-sonnet-5` و `claude-opus-5` حسب المهارة والباقة، مع adaptive thinking، بث مباشر للنتائج، prompt caching لمرجع المهارة، و `fallbacks: "default"` (لو رفض النموذج طلبًا يُعاد تلقائيًا على نموذج بديل)
 - **Salla Admin API v2** (قراءة فقط) + OAuth 2.0 + Webhooks
-- التخزين عبر Nitro `useStorage`: ملفات محلية في التطوير، و **Upstash Redis** في الإنتاج تلقائيًا إذا وُجدت متغيراته (`server/plugins/storage.ts`)
+- التخزين عبر Nitro `useStorage`: **Redis** (`REDIS_URL`) أو **Upstash**، أو ملفات على Volume دائم (`server/plugins/storage.ts`)
 
 ## التشغيل محليًا
 
@@ -75,9 +75,9 @@ npm run dev             # http://localhost:3000
 | `npm run test:security` | بناء واختبارات الأمان (٢١ اختبار) — شوف [SECURITY.md](SECURITY.md) |
 | `npm run sync-skills <path>` | تحديث ملفات المهارات من نسخة محلية من ريبو marketingskills |
 
-## الإطلاق على Vercel وربط سلة
+## الإطلاق على Coolify وربط سلة
 
-الدليل الكامل خطوة بخطوة: **[docs/DEPLOY.md](docs/DEPLOY.md)**
+الدليل الكامل خطوة بخطوة: **[docs/DEPLOY.md](docs/DEPLOY.md)**. المشروع فيه `Dockerfile` جاهز، ويشتغل كمان على Vercel.
 
 ### ملخص الربط مع سلة
 
