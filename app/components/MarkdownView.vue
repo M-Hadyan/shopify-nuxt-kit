@@ -9,7 +9,15 @@ watchEffect(async () => {
   const raw = marked.parse(props.source ?? '', { async: false, gfm: true, breaks: false }) as string
   if (import.meta.client) {
     const { default: DOMPurify } = await import('dompurify')
-    html.value = DOMPurify.sanitize(raw)
+    // الروابط تفتح في تبويب جديد وبدون تمرير أي بيانات للموقع الخارجي
+    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+      if (node.tagName === 'A') {
+        node.setAttribute('target', '_blank')
+        node.setAttribute('rel', 'noopener noreferrer nofollow')
+      }
+    })
+    html.value = DOMPurify.sanitize(raw, { FORBID_TAGS: ['style', 'form', 'input', 'iframe'], FORBID_ATTR: ['style'] })
+    DOMPurify.removeHook('afterSanitizeAttributes')
   }
 })
 </script>

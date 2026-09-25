@@ -8,13 +8,18 @@ export default defineEventHandler(async (event) => {
   const rec = await requireStore(event)
   const skill = getSkill(getRouterParam(event, 'slug')!)
   if (!skill) throw createError({ statusCode: 404, statusMessage: 'المهارة غير موجودة' })
-  const plan = await assertCanRun(rec, skill)
 
   const body = (await readBody<{ request?: string }>(event)) ?? {}
   const request = String(body.request ?? '').slice(0, 4000)
 
-  const api = getSallaApi(rec)
-  const [context, system] = await Promise.all([buildStoreContext(api, STORE_DATA), skillSystem(skill)])
+  const { plan, release } = await reserveRun(rec, skill)
+  let context: string, system: Awaited<ReturnType<typeof skillSystem>>
+  try {
+    ;[context, system] = await Promise.all([buildStoreContext(getSallaApi(rec), STORE_DATA), skillSystem(skill)])
+  } catch (e) {
+    await release(false)
+    throw e
+  }
   const { model, effort, maxTokens } = pickModel(plan, skill)
 
   const run: RunRecord = {
@@ -70,9 +75,9 @@ export default defineEventHandler(async (event) => {
         run.output += note
         controller.enqueue(encoder.encode(note))
       } finally {
-        await saveRun(run)
-        // نحسب التشغيل على الباقة فقط إذا نجح
-        if (run.status === 'done') await incrementUsage(rec.id)
+        await saveRun(run, rec.demo)
+        // التشغيل محجوز مسبقًا؛ نرجعه للباقة لو فشل
+        await release(run.status === 'done')
         controller.close()
       }
     },

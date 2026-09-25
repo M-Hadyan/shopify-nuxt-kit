@@ -3,7 +3,7 @@ import type {
 } from '#shared/types'
 import type { ListOptions, SallaApi } from './types'
 import type { StoreRecord } from '../db'
-import { updateStoreRecord } from '../db'
+import { getStoreRecord, updateStoreRecord } from '../db'
 import { SALLA_API, refreshTokens } from './oauth'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -109,9 +109,19 @@ export class LiveSallaApi implements SallaApi {
     const t = this.rec.tokens
     if (!t) throw createError({ statusCode: 401, statusMessage: 'المتجر غير مربوط بسلة' })
     if (t.expiresAt - Date.now() > 5 * 60_000) return t.accessToken
-    const fresh = await refreshTokens(t.refreshToken)
-    this.rec = (await updateStoreRecord(this.rec.id, { tokens: fresh })) ?? { ...this.rec, tokens: fresh }
-    return fresh.accessToken
+    try {
+      const fresh = await refreshTokens(t.refreshToken)
+      this.rec = (await updateStoreRecord(this.rec.id, { tokens: fresh })) ?? { ...this.rec, tokens: fresh }
+      return fresh.accessToken
+    } catch {
+      // refresh token يُستخدم مرة وحدة: لو طلب ثاني جدّده قبلنا، نقرأ التوكن الجديد من القاعدة
+      const latest = await getStoreRecord(this.rec.id)
+      if (latest?.tokens && latest.tokens.expiresAt - Date.now() > 60_000) {
+        this.rec = latest
+        return latest.tokens.accessToken
+      }
+      throw createError({ statusCode: 401, statusMessage: 'انتهت صلاحية الربط مع سلة. أعد فتح رواج من سلة.' })
+    }
   }
 
   private async call<T = Raw>(path: string, opts: { query?: Record<string, unknown> } = {}) {

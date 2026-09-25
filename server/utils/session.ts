@@ -7,10 +7,15 @@ const DEV_PASSWORD = 'rawaj-dev-session-password-change-me-please-32+'
 
 function sessionConfig() {
   const { sessionPassword } = useRuntimeConfig()
-  if (!sessionPassword && !import.meta.dev) {
-    throw createError({ statusCode: 500, statusMessage: 'NUXT_SESSION_PASSWORD is not configured' })
+  if ((!sessionPassword || sessionPassword.length < 32) && !import.meta.dev) {
+    throw createError({ statusCode: 500, statusMessage: 'NUXT_SESSION_PASSWORD must be at least 32 characters' })
   }
-  return { name: 'rawaj', password: sessionPassword || DEV_PASSWORD, maxAge: 60 * 60 * 24 * 30 }
+  return {
+    name: 'rawaj',
+    password: sessionPassword || DEV_PASSWORD,
+    maxAge: 60 * 60 * 24 * 30,
+    cookie: { httpOnly: true, secure: !import.meta.dev, sameSite: 'lax' as const, path: '/' },
+  }
 }
 
 export async function getRawajSession(event: H3Event) {

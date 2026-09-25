@@ -1,13 +1,7 @@
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import { createHmac } from 'node:crypto'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface SallaWebhook { event: string; merchant: number | string; created_at?: string; data: any }
-
-function safeEqual(a: string, b: string) {
-  const x = Buffer.from(a)
-  const y = Buffer.from(b)
-  return x.length === y.length && timingSafeEqual(x, y)
-}
 
 // ويبهوكات تطبيق سلة: التثبيت، التوكن (Easy Mode)، الاشتراكات والفوترة، الإلغاء
 export default defineEventHandler(async (event) => {
@@ -21,7 +15,15 @@ export default defineEventHandler(async (event) => {
     : safeEqual(getHeader(event, 'x-salla-signature') ?? '', createHmac('sha256', secret).update(raw).digest('hex'))
   if (!ok) throw createError({ statusCode: 401, statusMessage: 'Invalid signature' })
 
-  const hook = JSON.parse(raw) as SallaWebhook
+  let hook: SallaWebhook
+  try {
+    hook = JSON.parse(raw) as SallaWebhook
+  } catch {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid JSON' })
+  }
+  if (!hook?.event || !hook.merchant || !/^\d+$/.test(String(hook.merchant))) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid payload' })
+  }
   const storeId = String(hook.merchant)
   const d = hook.data ?? {}
   const now = new Date().toISOString()
@@ -57,7 +59,9 @@ export default defineEventHandler(async (event) => {
       await updateStoreRecord(storeId, { uninstalledAt: undefined })
       break
     case 'app.uninstalled':
+      // نحذف التوكنات وبيانات المتجر فورًا
       await updateStoreRecord(storeId, { uninstalledAt: now, tokens: undefined })
+      await deleteStoreData(storeId)
       break
     case 'app.trial.started':
       await updateStoreRecord(storeId, { plan: TRIAL_PLAN, planStatus: 'trial', planEndsAt: d.end_date })
