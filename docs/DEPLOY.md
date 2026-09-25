@@ -42,7 +42,9 @@ Vercel يضيف مفاتيح القاعدة (`KV_REST_API_URL` و `KV_REST_API_T
 |---|---|
 | `NUXT_SESSION_PASSWORD` | نص عشوائي طويل (٣٢ حرف أو أكثر). ولّده بأمر `openssl rand -hex 32` في الطرفية، أو من مدير كلمات المرور |
 | `NUXT_ANTHROPIC_API_KEY` | مفتاح Claude من [console.anthropic.com](https://console.anthropic.com) (API Keys) |
-| `NUXT_ADMIN_TOKEN` | كلمة سر لتقرير التكاليف، أي نص عشوائي طويل |
+| `NUXT_TOKEN_ENCRYPTION_KEY` | نص عشوائي طويل **مختلف** عن اللي فوق، لتشفير توكنات سلة. لا تغيّره بعد الإطلاق، لأن التوكنات القديمة ما راح تنفك |
+| `NUXT_ADMIN_TOKEN` | كلمة سر لتقرير التكاليف، ٢٤ حرف أو أكثر |
+| `NUXT_DEMO_DAILY_RUNS` | (اختياري) سقف تشغيلات المتجر التجريبي اليومي لكل الزوار، الافتراضي ٢٠٠ |
 | `NUXT_PUBLIC_APP_URL` | `https://DOMAIN` |
 | `NUXT_DEMO_MODE` | `true` (يخلي زر المتجر التجريبي شغال، وحطها `false` بعد الإطلاق) |
 | `NUXT_SALLA_REDIRECT_URI` | `https://DOMAIN/api/auth/salla/callback` |
@@ -128,7 +130,7 @@ Vercel يضيف مفاتيح القاعدة (`KV_REST_API_URL` و `KV_REST_API_T
 
 | المشكلة | السبب الغالب |
 |---|---|
-| خطأ 500 في كل الصفحات | `NUXT_SESSION_PASSWORD` ناقص |
+| خطأ 500 في كل الصفحات | `NUXT_SESSION_PASSWORD` ناقص أو أقصر من ٣٢ حرف |
 | "مفتاح Claude API غير مضبوط" | `NUXT_ANTHROPIC_API_KEY` ناقص أو غلط، أو ما سويت Redeploy بعد إضافته |
 | الدخول يرجع "طلب تسجيل دخول غير صالح" | `NUXT_SALLA_REDIRECT_URI` مختلف عن الرابط اللي في بوابة سلة (حتى حرف أو `/` زايدة) |
 | البيانات تختفي | Upstash غير مربوط، ارجع للخطوة ٣ |

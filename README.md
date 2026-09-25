@@ -72,6 +72,7 @@ npm run dev             # http://localhost:3000
 | `npm run dev` | خادم التطوير |
 | `npm run build` | بناء نسخة الإنتاج (`.output/`) |
 | `npm run typecheck` | فحص الأنواع |
+| `npm run test:security` | بناء واختبارات الأمان (٢١ اختبار) — شوف [SECURITY.md](SECURITY.md) |
 | `npm run sync-skills <path>` | تحديث ملفات المهارات من نسخة محلية من ريبو marketingskills |
 
 ## الإطلاق على Vercel وربط سلة
