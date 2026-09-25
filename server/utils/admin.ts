@@ -2,9 +2,10 @@ import { createHash, createHmac, scryptSync, timingSafeEqual } from 'node:crypto
 import type { H3Event } from 'h3'
 
 // ---------- كلمة المرور (scrypt) ----------
-// الصيغة: scrypt$<salt base64>$<hash base64>
+// الصيغة: scrypt:<salt base64>:<hash base64>
+// (بدون $ عشان Docker/Coolify ما يفسرها كمتغير)
 export function verifyPassword(password: string, stored: string) {
-  const [alg, salt, hash] = stored.split('$')
+  const [alg, salt, hash] = stored.split(/[:$]/)
   if (alg !== 'scrypt' || !salt || !hash) return false
   const expected = Buffer.from(hash, 'base64')
   const actual = scryptSync(password, Buffer.from(salt, 'base64'), expected.length, { N: 16384, r: 8, p: 1 })

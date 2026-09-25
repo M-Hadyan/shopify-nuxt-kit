@@ -20,7 +20,7 @@ const ADMIN_EMAIL = 'admin@rawaj.test'
 const ADMIN_PASSWORD = 'Sup3r-Secret-Admin-Pass!'
 const TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'
 const salt = randomBytes(16)
-const ADMIN_HASH = `scrypt$${salt.toString('base64')}$${scryptSync(ADMIN_PASSWORD, salt, 64, { N: 16384, r: 8, p: 1 }).toString('base64')}`
+const ADMIN_HASH = `scrypt:${salt.toString('base64')}:${scryptSync(ADMIN_PASSWORD, salt, 64, { N: 16384, r: 8, p: 1 }).toString('base64')}`
 
 function totp(secret, offset = 0) {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
