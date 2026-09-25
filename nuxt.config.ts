@@ -50,6 +50,8 @@ export default defineNuxtConfig({
       data: { driver: 'fs', base: './.data/db' },
     },
     serverAssets: [{ baseName: 'skills', dir: './assets/skills' }],
+    // تشغيل المهارة قد ياخذ دقائق مع التحليل العميق
+    vercel: { functions: { maxDuration: 300 } },
   },
   typescript: { strict: true },
 })

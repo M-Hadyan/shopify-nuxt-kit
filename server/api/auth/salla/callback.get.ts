@@ -4,7 +4,9 @@ export default defineEventHandler(async (event) => {
   if (error) return sendRedirect(event, `/?error=${encodeURIComponent(error)}`)
   const expected = getCookie(event, 'rawaj_oauth_state')
   deleteCookie(event, 'rawaj_oauth_state', { path: '/' })
-  if (!code || !state || state !== expected) {
+  // الدخول من زر "دخول التجار" يرسل state ونتحقق منه.
+  // التثبيت من متجر تطبيقات سلة يرجّع التاجر هنا بدون state منّا.
+  if (!code || (state && state !== expected)) {
     throw createError({ statusCode: 400, statusMessage: 'طلب تسجيل دخول غير صالح' })
   }
 
