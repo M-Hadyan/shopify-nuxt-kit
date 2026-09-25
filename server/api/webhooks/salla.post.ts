@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
   const ok = strategy === 'token'
     ? safeEqual((getHeader(event, 'authorization') ?? '').replace(/^Bearer\s+/i, ''), secret)
     : safeEqual(getHeader(event, 'x-salla-signature') ?? '', createHmac('sha256', secret).update(raw).digest('hex'))
-  if (!ok) throw createError({ statusCode: 401, statusMessage: 'Invalid signature' })
+  if (!ok) {
+    await logEvent('security', 'webhook.bad_signature', 'ويبهوك بتوقيع غير صحيح', { event })
+    throw createError({ statusCode: 401, statusMessage: 'Invalid signature' })
+  }
 
   let hook: SallaWebhook
   try {
@@ -26,6 +29,7 @@ export default defineEventHandler(async (event) => {
   }
   const storeId = String(hook.merchant)
   const d = hook.data ?? {}
+  await logEvent('info', `webhook.${hook.event}`, `ويبهوك سلة: ${hook.event}`, { event, storeId, data: { plan: d.plan_name ?? d.plan?.name } })
   const now = new Date().toISOString()
 
   switch (hook.event) {

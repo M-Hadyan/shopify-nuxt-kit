@@ -37,6 +37,12 @@ export default defineNuxtConfig({
     tokenEncryptionKey: '',
     // سقف يومي لكل تشغيلات المتاجر التجريبية مجتمعة
     demoDailyRuns: 200,
+    // لوحة الأدمن (/admin): إيميل + هاش كلمة المرور + سر 2FA — ولّدها بـ npm run admin:setup
+    adminEmail: '',
+    adminPasswordHash: '',
+    adminTotpSecret: '',
+    // تنبيهات الأخطاء والأمان (Slack / Discord / Telegram webhook)
+    alertWebhookUrl: '',
     // Salla Partners app
     sallaClientId: '',
     sallaClientSecret: '',

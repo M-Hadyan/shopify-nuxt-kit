@@ -18,6 +18,8 @@ export interface StoreRecord {
   planEndsAt?: string
   installedAt: string
   uninstalledAt?: string
+  suspended?: boolean // إيقاف من الأدمن
+  suspendedReason?: string
 }
 
 const db = () => useStorage('data')
@@ -63,6 +65,22 @@ export async function incrementUsage(storeId: string) {
 
 export async function decrementUsage(storeId: string) {
   return counterDecr(usageKey(storeId))
+}
+
+// تشغيلات إضافية يهديها الأدمن لهذا الشهر
+export const bonusKey = (storeId: string, month = monthKey()) => `bonus:${storeId}:${month}`
+export const getBonus = (storeId: string) => counterGet(bonusKey(storeId))
+export const addBonus = (storeId: string, runs: number) => counterIncrBy(bonusKey(storeId), runs, 40 * 24 * 3600)
+
+// تكلفة المتجر والمهارة الشهرية (بالهللة ×١٠ = ملّي ريال)
+export const storeCostKey = (storeId: string, month = monthKey()) => `cost:${storeId}:${month}`
+export const skillRunsKey = (skill: string, month = monthKey()) => `skill-runs:${skill}:${month}`
+export const skillCostKey = (skill: string, month = monthKey()) => `skill-cost:${skill}:${month}`
+
+export async function listStoreRecords() {
+  const keys = await db().getKeys('stores')
+  const ids = keys.map(key => key.split(':').pop()!).filter(Boolean)
+  return (await Promise.all(ids.map(getStoreRecord))).filter((r): r is StoreRecord => !!r)
 }
 
 export async function saveRun(run: RunRecord, demo = false) {

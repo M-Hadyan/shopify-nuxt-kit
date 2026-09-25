@@ -2,10 +2,7 @@ import type { RunRecord } from '#shared/types'
 
 // تقرير داخلي لتكلفة التشغيلات الفعلية (لصاحب المنصة فقط)
 export default defineEventHandler(async (event) => {
-  const { adminToken } = useRuntimeConfig()
-  if (!adminToken || adminToken.length < 24 || !safeEqual(getHeader(event, 'x-admin-token') ?? '', adminToken)) {
-    throw createError({ statusCode: 404 })
-  }
+  await requireAdmin(event)
   const month = (getQuery(event).month as string) || monthKey()
   const storage = useStorage('data')
   const keys = await storage.getKeys('runs')

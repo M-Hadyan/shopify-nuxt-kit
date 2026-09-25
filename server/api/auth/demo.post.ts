@@ -9,6 +9,8 @@ export default defineEventHandler(async (event) => {
     const ip = clientIp(event)
     const day = new Date().toISOString().slice(0, 10)
     if (await counterIncr(`demo-ip:${ip}:${day}`, 86400) > 3) {
+      await logEvent('security', 'demo.ip_limit', 'تجاوز حد إنشاء المتاجر التجريبية', { event, ip })
+      await metric('rate_limited')
       throw createError({ statusCode: 429, statusMessage: 'جربت المتجر التجريبي كثير اليوم. حاول بكرة أو ثبّت رواج على متجرك.' })
     }
     id = newId('demo_')
@@ -20,6 +22,10 @@ export default defineEventHandler(async (event) => {
       planStatus: 'active',
       installedAt: new Date().toISOString(),
     })
+  }
+  if (!existing?.demo) {
+    await metric('demo_created')
+    await logEvent('info', 'demo.created', 'متجر تجريبي جديد', { event, storeId: id })
   }
   await loginStore(event, id!)
   return { ok: true }

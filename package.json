@@ -12,7 +12,8 @@
     "typecheck": "nuxt typecheck",
     "sync-skills": "node scripts/sync-skills.mjs",
     "test": "node --test --test-concurrency=1 tests/*.test.mjs",
-    "test:security": "nuxt build && node --test --test-concurrency=1 tests/*.test.mjs"
+    "test:security": "nuxt build && node --test --test-concurrency=1 tests/*.test.mjs",
+    "admin:setup": "node scripts/admin-setup.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

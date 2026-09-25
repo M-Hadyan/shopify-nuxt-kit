@@ -34,6 +34,8 @@ export default defineEventHandler(async (event) => {
   })
 
   const encoder = new TextEncoder()
+  const startedAt = Date.now()
+  let errorDetail: string | undefined
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
@@ -69,8 +71,8 @@ export default defineEventHandler(async (event) => {
           controller.enqueue(encoder.encode(note))
         }
       } catch (e) {
-        console.error('[skill run]', e)
         run.status = 'error'
+        errorDetail = e instanceof Error ? e.message : String(e)
         const note = `\n\n> ⚠️ ${describeAiError(e)}`
         run.output += note
         controller.enqueue(encoder.encode(note))
@@ -78,9 +80,30 @@ export default defineEventHandler(async (event) => {
         await saveRun(run, rec.demo)
         // التشغيل محجوز مسبقًا؛ نرجعه للباقة لو فشل
         await release(run.status === 'done')
+        await recordRun(rec, run, Date.now() - startedAt, errorDetail)
         controller.close()
       }
     },
   })
   return sendStream(event, stream)
 })
+
+// سجل ومقاييس كل تشغيل
+async function recordRun(rec: { id: string; demo: boolean }, run: RunRecord, ms: number, errorDetail?: string) {
+  const costMilli = Math.round((run.costSar ?? 0) * 1000)
+  const data = { skill: run.skill, model: run.model, ms, tokensIn: run.usage?.input, tokensOut: run.usage?.output, costSar: run.costSar, status: run.status, runId: run.id, demo: rec.demo }
+  if (run.status === 'done') {
+    await Promise.all([
+      metric('runs'),
+      metric('cost_milli', costMilli),
+      metric('tokens_out', run.usage?.output ?? 0),
+      counterIncrBy(rec.demo ? `cost:demo:${monthKey()}` : storeCostKey(rec.id), costMilli, 40 * 24 * 3600),
+      counterIncr(skillRunsKey(run.skill), 40 * 24 * 3600),
+      counterIncrBy(skillCostKey(run.skill), costMilli, 40 * 24 * 3600),
+    ])
+    await logEvent('info', 'skill.run', `تشغيل «${run.title}» (${(ms / 1000).toFixed(1)} ث)`, { storeId: rec.id, data })
+  } else {
+    await metric('run_errors')
+    await logEvent(run.status === 'refused' ? 'warn' : 'error', run.status === 'refused' ? 'skill.refused' : 'skill.failed', `فشل تشغيل «${run.title}»${errorDetail ? `: ${errorDetail.slice(0, 200)}` : ''}`, { storeId: rec.id, data })
+  }
+}

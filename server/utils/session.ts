@@ -39,5 +39,9 @@ export async function requireStore(event: H3Event): Promise<StoreRecord> {
   if (!rec || rec.uninstalledAt) {
     throw createError({ statusCode: 401, statusMessage: 'غير مسجل الدخول' })
   }
+  event.context.storeId = rec.id
+  if (rec.suspended) {
+    throw createError({ statusCode: 403, statusMessage: 'حساب المتجر موقوف مؤقتًا. تواصل مع الدعم.' })
+  }
   return rec
 }

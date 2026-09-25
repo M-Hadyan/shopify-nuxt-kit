@@ -120,6 +120,7 @@ export class LiveSallaApi implements SallaApi {
         this.rec = latest
         return latest.tokens.accessToken
       }
+      await logEvent('error', 'salla.token_refresh_failed', 'فشل تجديد توكن سلة', { storeId: this.rec.id })
       throw createError({ statusCode: 401, statusMessage: 'انتهت صلاحية الربط مع سلة. أعد فتح رواج من سلة.' })
     }
   }
@@ -128,8 +129,9 @@ export class LiveSallaApi implements SallaApi {
     const res = await $fetch<{ data: T }>(`${SALLA_API}${path}`, {
       query: opts.query,
       headers: { Authorization: `Bearer ${await this.token()}`, Accept: 'application/json' },
-    }).catch((e: Raw) => {
+    }).catch(async (e: Raw) => {
       const msg = e?.data?.error?.message ?? e?.message ?? 'Salla API error'
+      await logEvent('warn', 'salla.api_error', `خطأ من سلة (${path}): ${msg}`, { storeId: this.rec.id, data: { status: e?.statusCode } })
       throw createError({ statusCode: e?.statusCode ?? 502, statusMessage: `سلة: ${msg}` })
     })
     return res.data

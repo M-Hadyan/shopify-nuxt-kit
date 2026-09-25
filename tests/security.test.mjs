@@ -1,7 +1,7 @@
 // اختبارات الأمان: تشغّل نسخة الإنتاج (.output) مع خادم Claude وهمي وتجرّب سيناريوهات هجوم.
 // التشغيل: npm run test:security
 import { spawn } from 'node:child_process'
-import { createHmac } from 'node:crypto'
+import { createHmac, randomBytes, scryptSync } from 'node:crypto'
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import http from 'node:http'
 import { tmpdir } from 'node:os'
@@ -16,6 +16,23 @@ const AI_PORT = PORT + 600
 const BASE = `http://127.0.0.1:${PORT}`
 const WEBHOOK_SECRET = 'test-webhook-secret-0123456789'
 const ADMIN_TOKEN = 'test-admin-token-0123456789abcdef'
+const ADMIN_EMAIL = 'admin@rawaj.test'
+const ADMIN_PASSWORD = 'Sup3r-Secret-Admin-Pass!'
+const TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'
+const salt = randomBytes(16)
+const ADMIN_HASH = `scrypt$${salt.toString('base64')}$${scryptSync(ADMIN_PASSWORD, salt, 64, { N: 16384, r: 8, p: 1 }).toString('base64')}`
+
+function totp(secret, offset = 0) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+  let bits = 0, value = 0
+  const bytes = []
+  for (const ch of secret) { value = (value << 5) | alphabet.indexOf(ch); bits += 5; if (bits >= 8) { bytes.push((value >>> (bits - 8)) & 0xff); bits -= 8 } }
+  const buf = Buffer.alloc(8)
+  buf.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000) + offset))
+  const h = createHmac('sha1', Buffer.from(bytes)).update(buf).digest()
+  const o = h[h.length - 1] & 0xf
+  return String((h.readUInt32BE(o) & 0x7fffffff) % 1000000).padStart(6, '0')
+}
 
 let app, ai, dataDir
 const aiRequests = []
@@ -89,6 +106,9 @@ before(async () => {
       NUXT_TOKEN_ENCRYPTION_KEY: 'test-encryption-key-0123456789-abcdef',
       NUXT_SALLA_WEBHOOK_SECRET: WEBHOOK_SECRET,
       NUXT_ADMIN_TOKEN: ADMIN_TOKEN,
+      NUXT_ADMIN_EMAIL: ADMIN_EMAIL,
+      NUXT_ADMIN_PASSWORD_HASH: ADMIN_HASH,
+      NUXT_ADMIN_TOTP_SECRET: TOTP_SECRET,
       NUXT_ANTHROPIC_API_KEY: 'test',
       NUXT_DEMO_DAILY_RUNS: '30',
       ANTHROPIC_BASE_URL: `http://127.0.0.1:${AI_PORT}`,
@@ -291,10 +311,10 @@ describe('ويبهوك سلة', () => {
 })
 
 describe('تقرير التكاليف الداخلي', () => {
-  test('مخفي بدون المفتاح الصحيح', async () => {
-    assert.equal((await fetch(BASE + '/api/admin/costs')).status, 404)
-    assert.equal((await fetch(BASE + '/api/admin/costs', { headers: { 'x-admin-token': 'wrong' } })).status, 404)
-    assert.equal((await fetch(BASE + '/api/admin/costs', { headers: { 'x-admin-token': ADMIN_TOKEN.slice(0, -1) } })).status, 404)
+  test('مرفوض بدون المفتاح الصحيح', async () => {
+    assert.equal((await fetch(BASE + '/api/admin/costs')).status, 401)
+    assert.equal((await fetch(BASE + '/api/admin/costs', { headers: { 'x-admin-token': 'wrong' } })).status, 401)
+    assert.equal((await fetch(BASE + '/api/admin/costs', { headers: { 'x-admin-token': ADMIN_TOKEN.slice(0, -1) } })).status, 401)
   })
 
   test('يشتغل بالمفتاح الصحيح', async () => {
@@ -303,5 +323,118 @@ describe('تقرير التكاليف الداخلي', () => {
     const d = await r.json()
     assert.ok(d.runs > 0)
     assert.ok(d.totalSar > 0)
+  })
+})
+
+describe('لوحة الأدمن', () => {
+  const login = (c, body) => c.call('/api/admin/login', { method: 'POST', body: JSON.stringify(body) })
+  const adminClient = (ip) => {
+    const c = client(ip)
+    let adminCookie = ''
+    const call = async (path, opts = {}) => {
+      const res = await fetch(BASE + path, { redirect: 'manual', ...opts, headers: { 'x-forwarded-for': ip, ...(adminCookie && { cookie: adminCookie }), ...(opts.body && { 'content-type': 'application/json' }), ...opts.headers } })
+      for (const ck of res.headers.getSetCookie?.() ?? []) if (ck.startsWith('rawaj_admin=')) adminCookie = ck.split(';')[0]
+      return res
+    }
+    return { call, raw: c, get cookie() { return adminCookie } }
+  }
+
+  test('كل واجهات الأدمن مقفلة بدون دخول', async () => {
+    for (const p of ['/api/admin/overview', '/api/admin/stores', '/api/admin/logs', '/api/admin/stores/x', '/api/admin/me']) {
+      assert.equal((await fetch(BASE + p)).status, 401, p)
+    }
+    const r = await fetch(BASE + '/api/admin/stores/x/action', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'unsuspend' }) })
+    assert.equal(r.status, 401)
+  })
+
+  test('جلسة التاجر ما تفتح لوحة الأدمن', async () => {
+    const c = client()
+    await c.call('/api/auth/demo', { method: 'POST' })
+    assert.equal((await c.call('/api/admin/overview')).status, 401)
+  })
+
+  test('كلمة مرور غلط أو كود 2FA غلط ينرفض', async () => {
+    const a = adminClient('10.50.0.1')
+    assert.equal((await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: 'wrong-password', code: totp(TOTP_SECRET) }) })).status, 401)
+    assert.equal((await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, code: '000000' === totp(TOTP_SECRET) ? '111111' : '000000' }) })).status, 401)
+    assert.equal((await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, code: totp(TOTP_SECRET, -5) }) })).status, 401)
+    assert.equal((await a.call('/api/admin/overview')).status, 401)
+  })
+
+  test('حماية من التخمين: بعد ٥ محاولات ينقفل الدخول', async () => {
+    const a = adminClient('10.50.0.2')
+    const codes = []
+    for (let i = 0; i < 6; i++) codes.push((await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: 'x', code: '123456' }) })).status)
+    assert.deepEqual(codes, [401, 401, 401, 401, 401, 429])
+    const ok = await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, code: totp(TOTP_SECRET) }) })
+    assert.equal(ok.status, 429, 'حتى البيانات الصحيحة تنرفض وقت القفل')
+  })
+
+  test('دخول صحيح: كوكي SameSite=Strict، والوصول للمراقبة والسجلات', async () => {
+    const a = adminClient('10.50.0.3')
+    const r = await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL.toUpperCase(), password: ADMIN_PASSWORD, code: totp(TOTP_SECRET) }) })
+    assert.equal(r.status, 200)
+    const set = (r.headers.getSetCookie?.() ?? []).find(c => c.startsWith('rawaj_admin='))
+    assert.match(set, /HttpOnly/i)
+    assert.match(set, /Secure/i)
+    assert.match(set, /SameSite=Strict/i)
+
+    const ov = await (await a.call('/api/admin/overview')).json()
+    assert.equal(ov.health.storage.ok, true)
+    assert.ok(ov.last24h.runs > 0, 'المقاييس ما سجلت التشغيلات')
+    assert.equal(ov.series.runs.length, 24)
+
+    const logs = await (await a.call('/api/admin/logs?level=security')).json()
+    const types = logs.items.map(l => l.type)
+    assert.ok(types.includes('admin.login_failed'))
+    assert.ok(types.includes('admin.login_blocked'))
+    assert.ok(types.includes('webhook.bad_signature'))
+    assert.ok(types.includes('admin.login'))
+
+    const req = await (await a.call('/api/admin/logs?channel=requests')).json()
+    assert.ok(req.items.some(l => l.message === '/api/skills/copywriting/run'), 'سجل الطلبات ناقص')
+  })
+
+  test('السجلات ما تحفظ كلمات المرور أو الأسرار', async () => {
+    const a = adminClient('10.50.0.4')
+    await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, code: totp(TOTP_SECRET) }) })
+    const all = JSON.stringify(await (await a.call('/api/admin/logs?limit=500')).json()) + JSON.stringify(await (await a.call('/api/admin/logs?channel=requests&limit=500')).json())
+    assert.ok(!all.includes(ADMIN_PASSWORD))
+    assert.ok(!all.includes('ACCESS-TOKEN-PLAINTEXT-CHECK'))
+    assert.ok(!all.includes(WEBHOOK_SECRET))
+  })
+
+  test('إيقاف متجر يمنعه، وإهداء تشغيلات يرفع حده، وكلها تنسجل', async () => {
+    const a = adminClient('10.50.0.5')
+    await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, code: totp(TOTP_SECRET) }) })
+    const m = client('10.60.0.1')
+    await m.call('/api/auth/demo', { method: 'POST' })
+    const me = await (await m.call('/api/me')).json()
+    const id = me.store.id
+    const before = me.usage.limit
+
+    assert.equal((await a.call(`/api/admin/stores/${id}/action`, { method: 'POST', body: JSON.stringify({ action: 'add_runs', runs: 7 }) })).status, 200)
+    assert.equal((await (await m.call('/api/me')).json()).usage.limit, before + 7)
+
+    assert.equal((await a.call(`/api/admin/stores/${id}/action`, { method: 'POST', body: JSON.stringify({ action: 'suspend', reason: 'test' }) })).status, 200)
+    assert.equal((await m.call('/api/me')).status, 403)
+    assert.equal((await runSkill(m, 'copywriting')).status, 403)
+
+    assert.equal((await a.call(`/api/admin/stores/${id}/action`, { method: 'POST', body: JSON.stringify({ action: 'unsuspend' }) })).status, 200)
+    assert.equal((await m.call('/api/me')).status, 200)
+
+    const bad = await a.call(`/api/admin/stores/${id}/action`, { method: 'POST', body: JSON.stringify({ action: 'add_runs', runs: -5 }) })
+    assert.equal(bad.status, 400)
+
+    const logs = await (await a.call(`/api/admin/logs?store=${id}&type=admin`)).json()
+    assert.deepEqual(logs.items.map(l => l.type).sort(), ['admin.add_runs', 'admin.suspend', 'admin.unsuspend'])
+  })
+
+  test('الخروج ينهي جلسة الأدمن', async () => {
+    const a = adminClient('10.50.0.6')
+    await a.call('/api/admin/login', { method: 'POST', body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, code: totp(TOTP_SECRET) }) })
+    assert.equal((await a.call('/api/admin/me')).status, 200)
+    await a.call('/api/admin/logout', { method: 'POST' })
+    assert.equal((await a.call('/api/admin/me')).status, 401)
   })
 })
