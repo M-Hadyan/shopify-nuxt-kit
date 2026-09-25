@@ -2,14 +2,14 @@ import type { SkillDef } from '#shared/types'
 
 // ألوان البطاقات
 export const TONES: Record<SkillDef['tone'], { tile: string; glow: string }> = {
-  violet: { tile: 'bg-violet-100 text-violet-700', glow: 'bg-violet-400/20' },
-  teal: { tile: 'bg-teal-100 text-teal-700', glow: 'bg-teal-400/20' },
-  amber: { tile: 'bg-amber-100 text-amber-700', glow: 'bg-amber-400/20' },
-  rose: { tile: 'bg-rose-100 text-rose-700', glow: 'bg-rose-400/20' },
-  sky: { tile: 'bg-sky-100 text-sky-700', glow: 'bg-sky-400/20' },
-  emerald: { tile: 'bg-emerald-100 text-emerald-700', glow: 'bg-emerald-400/20' },
-  indigo: { tile: 'bg-indigo-100 text-indigo-700', glow: 'bg-indigo-400/20' },
-  orange: { tile: 'bg-orange-100 text-orange-700', glow: 'bg-orange-400/20' },
+  violet: { tile: 'bg-violet-500/15 text-violet-300', glow: 'bg-violet-400/10' },
+  teal: { tile: 'bg-teal-500/15 text-teal-300', glow: 'bg-teal-400/10' },
+  amber: { tile: 'bg-amber-500/15 text-amber-300', glow: 'bg-amber-400/10' },
+  rose: { tile: 'bg-rose-500/15 text-rose-300', glow: 'bg-rose-400/10' },
+  sky: { tile: 'bg-sky-500/15 text-sky-300', glow: 'bg-sky-400/10' },
+  emerald: { tile: 'bg-emerald-500/15 text-emerald-300', glow: 'bg-emerald-400/10' },
+  indigo: { tile: 'bg-indigo-500/15 text-indigo-300', glow: 'bg-indigo-400/10' },
+  orange: { tile: 'bg-orange-500/15 text-orange-300', glow: 'bg-orange-400/10' },
 }
 
 export const sar = (n: number) => `${new Intl.NumberFormat('ar-SA').format(Math.round(n))} ر.س`

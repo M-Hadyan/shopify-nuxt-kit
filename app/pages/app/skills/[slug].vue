@@ -63,12 +63,12 @@ function download() {
 
     <div class="mt-4 grid gap-6 lg:grid-cols-[22rem_1fr]">
       <!-- لوحة الإعداد -->
-      <aside class="card h-fit p-5 lg:sticky lg:top-6">
+      <aside class="card-hero h-fit p-5 lg:sticky lg:top-40">
         <div class="flex items-start gap-3.5">
           <div class="icon-tile size-12" :class="tone.tile"><AppIcon :name="skill.icon" :size="24" /></div>
           <div>
             <h1 class="text-lg font-bold">{{ skill.title }}</h1>
-            <p class="text-sm text-brand-700">{{ skill.tagline }}</p>
+            <p class="text-sm text-brand-400">{{ skill.tagline }}</p>
           </div>
         </div>
         <p class="mt-4 text-sm leading-6 text-muted">{{ skill.description }}</p>
@@ -99,7 +99,7 @@ function download() {
 
       <!-- الناتج -->
       <section class="card min-h-[28rem] p-6">
-        <div v-if="error" class="rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{{ error }}</div>
+        <div v-if="error" class="rounded-xl bg-rose-500/10 p-4 text-sm text-rose-300">{{ error }}</div>
         <div v-else-if="!output && !running" class="flex h-full min-h-[24rem] flex-col items-center justify-center text-center">
           <div class="icon-tile size-16 rounded-3xl" :class="tone.tile"><AppIcon :name="skill.icon" :size="30" /></div>
           <h2 class="mt-4 font-bold">جاهز نشتغل</h2>
@@ -108,8 +108,8 @@ function download() {
         <template v-else>
           <div class="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
             <div class="flex items-center gap-2 text-sm text-muted">
-              <AppIcon v-if="running" name="Loader" spin :size="16" class="text-brand-600" />
-              <AppIcon v-else name="CircleCheck" :size="16" class="text-emerald-600" />
+              <AppIcon v-if="running" name="Loader" spin :size="16" class="text-brand-400" />
+              <AppIcon v-else name="CircleCheck" :size="16" class="text-emerald-300" />
               {{ running ? 'جاري الكتابة…' : 'اكتملت النتيجة وانحفظت في السجل' }}
             </div>
             <div v-if="!running" class="flex gap-2">

@@ -19,11 +19,11 @@ const list = computed(() => SKILLS.filter(s =>
 
     <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex flex-wrap gap-2">
-        <button class="rounded-full px-3.5 py-1.5 text-sm font-medium transition" :class="cat === 'all' ? 'bg-ink text-white' : 'bg-white text-muted ring-1 ring-line hover:text-ink'" @click="cat = 'all'">الكل</button>
+        <button class="rounded-full px-3.5 py-1.5 text-sm font-medium transition" :class="cat === 'all' ? 'bg-brand-600 text-white' : 'bg-card text-muted ring-1 ring-line hover:text-ink'" @click="cat = 'all'">الكل</button>
         <button
           v-for="(label, key) in SKILL_CATEGORIES" :key="key"
           class="rounded-full px-3.5 py-1.5 text-sm font-medium transition"
-          :class="cat === key ? 'bg-ink text-white' : 'bg-white text-muted ring-1 ring-line hover:text-ink'"
+          :class="cat === key ? 'bg-brand-600 text-white' : 'bg-card text-muted ring-1 ring-line hover:text-ink'"
           @click="cat = key"
         >{{ label }}</button>
       </div>

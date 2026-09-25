@@ -16,5 +16,5 @@ watchEffect(async () => {
 
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -->
-  <div class="prose prose-slate max-w-none overflow-x-auto prose-headings:font-bold prose-headings:text-ink prose-a:text-brand-700 prose-strong:text-ink prose-table:text-sm prose-th:bg-surface prose-th:p-2 prose-td:p-2 prose-th:text-start" v-html="html" />
+  <div class="prose prose-invert max-w-none overflow-x-auto prose-headings:font-bold prose-headings:text-ink prose-a:text-brand-400 prose-strong:text-ink prose-table:text-sm prose-th:bg-surface prose-th:p-2 prose-td:p-2 prose-th:text-start" v-html="html" />
 </template>

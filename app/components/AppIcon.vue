@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {
-  ArrowLeft, BadgePercent, Bot, CalendarDays, Check, ChevronLeft, CircleCheck, CircleX, Copy, Download, History,
+  Activity, ArrowDownLeft, ArrowLeft, ArrowUpLeft, BadgePercent, Bell, ChevronDown, CircleHelp, Crown, Bot, CalendarDays, Check, ChevronLeft, CircleCheck, CircleX, Copy, Download, History,
   LayoutDashboard, LayoutGrid, LoaderCircle, LogOut, Mail, MapIcon, Megaphone, Menu, MessageSquareHeart, Package,
   PenLine, Plug, Receipt, RefreshCw, ScanSearch, Search, Send, Settings, ShieldCheck, ShoppingCart, Sparkles, Star,
   Store, TrendingUp, Users, Wallet, WandSparkles, X, Zap,
 } from 'lucide-vue-next'
 
 const ICONS = {
-  ArrowLeft, BadgePercent, Bot, CalendarDays, Check, ChevronLeft, CircleCheck, CircleX, Copy, Download, History,
+  Activity, ArrowDownLeft, ArrowLeft, ArrowUpLeft, BadgePercent, Bell, ChevronDown, CircleHelp, Crown, Bot, CalendarDays, Check, ChevronLeft, CircleCheck, CircleX, Copy, Download, History,
   LayoutDashboard, LayoutGrid, Loader: LoaderCircle, LogOut, Mail, Map: MapIcon, Megaphone, Menu, MessageSquareHeart,
   Package, PenLine, Plug, Receipt, RefreshCw, ScanSearch, Search, Send, Settings, ShieldCheck, ShoppingCart, Sparkles,
   Star, Store, TrendingUp, Users, Wallet, WandSparkles, X, Zap,

@@ -85,20 +85,20 @@ const weak = (p: Product) => plain(p.description).length < 60
             <h3 class="line-clamp-2 text-sm font-semibold">{{ p.name }}</h3>
             <div class="mt-1 text-sm">
               <span :class="p.salePrice && 'text-muted line-through'">{{ sar(p.price.amount) }}</span>
-              <span v-if="p.salePrice" class="mr-1.5 font-semibold text-rose-600">{{ sar(p.salePrice.amount) }}</span>
+              <span v-if="p.salePrice" class="mr-1.5 font-semibold text-rose-300">{{ sar(p.salePrice.amount) }}</span>
             </div>
           </div>
         </div>
         <div class="flex flex-wrap gap-1.5 px-4">
-          <span v-if="p.quantity === 0" class="chip bg-rose-50 text-rose-700">نافد</span>
-          <span v-else-if="p.quantity != null && p.quantity < 10" class="chip bg-amber-50 text-amber-700">مخزون منخفض ({{ num(p.quantity) }})</span>
-          <span v-if="weak(p)" class="chip bg-amber-50 text-amber-700">وصف ضعيف</span>
+          <span v-if="p.quantity === 0" class="chip bg-rose-500/10 text-rose-300">نافد</span>
+          <span v-else-if="p.quantity != null && p.quantity < 10" class="chip bg-amber-500/10 text-amber-300">مخزون منخفض ({{ num(p.quantity) }})</span>
+          <span v-if="weak(p)" class="chip bg-amber-500/10 text-amber-300">وصف ضعيف</span>
           <span v-if="!p.seoTitle" class="chip bg-surface text-muted">بدون SEO</span>
           <span v-if="p.soldCount" class="chip bg-surface text-muted">{{ num(p.soldCount) }} مبيع</span>
         </div>
         <p class="mt-3 line-clamp-2 flex-1 px-4 text-sm text-muted">{{ plain(p.description) || 'بدون وصف' }}</p>
         <div class="mt-4 border-t border-line p-3">
-          <button class="btn-ghost w-full text-brand-700" @click="open(p)"><AppIcon name="WandSparkles" :size="18" /> حسّن بالذكاء الاصطناعي</button>
+          <button class="btn-ghost w-full text-brand-400" @click="open(p)"><AppIcon name="WandSparkles" :size="18" /> حسّن بالذكاء الاصطناعي</button>
         </div>
       </div>
     </div>
@@ -108,8 +108,8 @@ const weak = (p: Product) => plain(p.description).length < 60
 
     <!-- نافذة التحسين -->
     <Teleport to="body">
-      <div v-if="active" class="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4" @click.self="active = null">
-        <div class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl">
+      <div v-if="active" class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4" @click.self="active = null">
+        <div class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-card p-6 shadow-2xl sm:rounded-3xl">
           <div class="flex items-start justify-between gap-4">
             <div>
               <h2 class="text-lg font-bold">تحسين المنتج</h2>
@@ -134,10 +134,10 @@ const weak = (p: Product) => plain(p.description).length < 60
             <AppIcon :name="busy ? 'Loader' : 'WandSparkles'" :spin="busy" :size="18" /> {{ busy ? 'جاري الكتابة…' : copy ? 'اقترح نسخة ثانية' : 'اقترح وصف جديد' }}
           </button>
 
-          <div v-if="msg" class="mt-4 rounded-xl p-3 text-sm" :class="msg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'">{{ msg.text }}</div>
+          <div v-if="msg" class="mt-4 rounded-xl p-3 text-sm" :class="msg.ok ? 'bg-emerald-500/10 text-emerald-300' : 'bg-rose-500/10 text-rose-300'">{{ msg.text }}</div>
 
           <div v-if="copy" class="mt-6 space-y-5">
-            <div class="rounded-2xl bg-brand-50 p-4 text-sm text-brand-800"><strong>ليش أفضل؟</strong> {{ copy.rationale }}</div>
+            <div class="rounded-2xl bg-brand-500/10 p-4 text-sm text-brand-300"><strong>ليش أفضل؟</strong> {{ copy.rationale }}</div>
 
             <label class="flex items-start gap-3">
               <input v-model="fields.name" type="checkbox" class="mt-1 size-4 accent-brand-600">
@@ -160,8 +160,8 @@ const weak = (p: Product) => plain(p.description).length < 60
               <input v-model="fields.seo" type="checkbox" class="mt-1 size-4 accent-brand-600">
               <div class="flex-1 rounded-xl border border-line p-4">
                 <div class="text-sm font-semibold">معاينة قوقل (SEO)</div>
-                <div class="mt-2 text-xs text-emerald-700" dir="ltr">{{ active.url || 'store.salla.sa/…' }}</div>
-                <div class="text-lg text-blue-700">{{ copy.seo_title }}</div>
+                <div class="mt-2 text-xs text-emerald-300" dir="ltr">{{ active.url || 'store.salla.sa/…' }}</div>
+                <div class="text-lg text-sky-300">{{ copy.seo_title }}</div>
                 <div class="text-sm text-muted">{{ copy.seo_description }}</div>
               </div>
             </label>

@@ -95,9 +95,11 @@ export interface Coupon extends CouponInput { id: string; status: string; usedCo
 export interface StoreOverview {
   store: StoreInfo
   kpis: {
-    revenue30d: number
-    orders30d: number
-    aov30d: number
+    revenue: number
+    revenueChange: number | null // نسبة التغير عن الفترة السابقة
+    days: number
+    orders: number
+    aov: number
     productsCount: number
     outOfStock: number
     abandonedCarts: number

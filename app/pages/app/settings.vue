@@ -19,7 +19,7 @@ const { data: me } = await useMe()
           <div class="flex justify-between gap-4"><dt class="text-muted">المعرف</dt><dd class="font-medium" dir="ltr">{{ me.store.id }}</dd></div>
           <div class="flex justify-between gap-4">
             <dt class="text-muted">حالة الربط</dt>
-            <dd><span class="chip" :class="me.demo ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'">{{ me.demo ? 'متجر تجريبي' : 'متصل بسلة' }}</span></dd>
+            <dd><span class="chip" :class="me.demo ? 'bg-amber-500/10 text-amber-300' : 'bg-emerald-500/10 text-emerald-300'">{{ me.demo ? 'متجر تجريبي' : 'متصل بسلة' }}</span></dd>
           </div>
         </dl>
         <div class="mt-5 rounded-xl bg-surface p-4 text-sm text-muted">
@@ -52,7 +52,7 @@ const { data: me } = await useMe()
 
     <h2 class="mt-10 text-lg font-bold">كل الباقات</h2>
     <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div v-for="p in PLANS" :key="p.id" class="card p-5" :class="p.id === me.plan.id && 'border-brand-400 ring-4 ring-brand-100'">
+      <div v-for="p in PLANS" :key="p.id" class="card p-5" :class="p.id === me.plan.id && 'border-brand-500/50 ring-4 ring-brand-500/15'">
         <div class="flex items-center justify-between">
           <h3 class="font-bold">{{ p.name }}</h3>
           <span v-if="p.id === me.plan.id" class="chip">باقتك</span>

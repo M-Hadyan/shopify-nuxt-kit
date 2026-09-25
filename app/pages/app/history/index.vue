@@ -16,7 +16,7 @@ const { data: runs, pending } = await useFetch<{ id: string; title: string; skil
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 text-sm font-semibold">
             {{ r.title }}
-            <span v-if="r.status !== 'done'" class="chip bg-rose-50 text-rose-700">لم يكتمل</span>
+            <span v-if="r.status !== 'done'" class="chip bg-rose-500/10 text-rose-300">لم يكتمل</span>
           </div>
           <div class="truncate text-xs text-muted">{{ r.preview }}</div>
         </div>
@@ -24,7 +24,7 @@ const { data: runs, pending } = await useFetch<{ id: string; title: string; skil
       </NuxtLink>
     </div>
     <div v-else-if="!pending" class="card mt-6 flex flex-col items-center p-12 text-center">
-      <div class="icon-tile size-14 rounded-2xl bg-brand-50 text-brand-700"><AppIcon name="History" :size="26" /></div>
+      <div class="icon-tile size-14 rounded-2xl bg-brand-500/10 text-brand-400"><AppIcon name="History" :size="26" /></div>
       <h2 class="mt-4 font-bold">ما فيه نتائج للحين</h2>
       <p class="mt-1 text-sm text-muted">شغّل أول بطاقة وبتلقى نتيجتها هنا.</p>
       <NuxtLink to="/app/skills" class="btn-primary mt-5">تصفح البطاقات</NuxtLink>

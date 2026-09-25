@@ -13,7 +13,7 @@ const skill = computed(() => run.value && getSkill(run.value.skill))
     <NuxtLink to="/app/history" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink">
       <AppIcon name="ArrowLeft" :size="16" class="rotate-180" /> السجل
     </NuxtLink>
-    <div v-if="error" class="card mt-4 p-6 text-rose-600">{{ errMsg(error) }}</div>
+    <div v-if="error" class="card mt-4 p-6 text-rose-300">{{ errMsg(error) }}</div>
     <div v-else-if="run" class="card mt-4 p-6">
       <div class="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-4">
         <div class="flex items-center gap-3">

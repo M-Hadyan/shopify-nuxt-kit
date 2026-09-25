@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{ data: { date: string; total: number }[] }>()
+const props = defineProps<{ data: { date: string; total: number }[]; monthly?: boolean }>()
 const max = computed(() => Math.max(1, ...props.data.map(d => d.total)))
 const hover = ref<number | null>(null)
-const label = (d: string) => new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(d))
+const label = (d: string) => new Intl.DateTimeFormat('ar-SA', props.monthly ? { month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' }).format(new Date(props.monthly ? `${d}-01` : d))
 </script>
 
 <template>
@@ -14,11 +14,11 @@ const label = (d: string) => new Intl.DateTimeFormat('ar-SA', { day: 'numeric', 
         @mouseenter="hover = i"
       >
         <div
-          class="w-full rounded-t-md transition-colors"
-          :class="hover === i ? 'bg-brand-600' : 'bg-brand-300/70'"
+          class="w-full rounded-t-lg transition-colors"
+          :class="hover === i ? 'bg-brand-400' : 'bg-brand-600/60'"
           :style="{ height: `${Math.max(2, (d.total / max) * 100)}%` }"
         />
-        <div v-if="hover === i" class="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1.5 text-xs text-white shadow-lg" dir="rtl">
+        <div v-if="hover === i" class="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black px-2.5 py-1.5 text-xs text-white shadow-lg" dir="rtl">
           {{ label(d.date) }} · {{ sar(d.total) }}
         </div>
       </div>

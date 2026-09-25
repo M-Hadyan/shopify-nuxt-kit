@@ -12,13 +12,13 @@ const tone = computed(() => TONES[props.skill.tone])
       <div class="icon-tile" :class="tone.tile"><AppIcon :name="skill.icon" :size="22" /></div>
       <div class="min-w-0">
         <h3 class="font-bold text-ink">{{ skill.title }}</h3>
-        <p class="mt-0.5 text-sm text-brand-700">{{ skill.tagline }}</p>
+        <p class="mt-0.5 text-sm text-brand-400">{{ skill.tagline }}</p>
       </div>
     </div>
     <p class="relative mt-3 line-clamp-2 text-sm leading-6 text-muted">{{ skill.description }}</p>
     <div class="relative mt-4 flex items-center justify-between pt-1">
       <span class="text-xs text-muted">{{ SKILL_CATEGORIES[skill.category] }}</span>
-      <span class="flex items-center gap-1 text-sm font-semibold text-brand-700 opacity-80 transition group-hover:gap-2 group-hover:opacity-100">
+      <span class="flex items-center gap-1 text-sm font-semibold text-brand-400 opacity-80 transition group-hover:gap-2 group-hover:opacity-100">
         شغّل <AppIcon name="ArrowLeft" :size="16" />
       </span>
     </div>
