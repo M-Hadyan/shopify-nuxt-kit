@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
-  ArrowLeft, BadgePercent, Bot, Brain, CalendarDays, ChartLine, Check, ChevronDown, ChevronLeft, CircleCheck, ClipboardList,
-  Code, Copy, Crown, DoorOpen, Download, Film, FlaskConical, FolderPlus, Gift, Handshake, History, Image, Landmark,
+  ArrowLeft, ArrowUpLeft, BadgePercent, Bell, Bot, Brain, CalendarDays, ChartLine, Check, ChevronDown, ChevronLeft, CircleCheck, CircleHelp, ClipboardList,
+  Code, Copy, Crown, DoorOpen, Download, FileText, Film, FlaskConical, FolderPlus, Gift, Handshake, History, Image, Landmark,
   Layers, LayoutGrid, Lightbulb, LoaderCircle, Lock, LogOut, Magnet, Mail, MailOpen, MapIcon, Megaphone, Menu,
   MessageSquare, Mic, MousePointerClick, Network, PanelTop, PenLine, Plug, Presentation, Radar, RefreshCw, Repeat,
   Rocket, Scale, ScanSearch, Search, Settings, Settings2, Share2, ShieldCheck, Smartphone, Sparkles, SpellCheck, Star,
@@ -9,8 +9,8 @@ import {
 } from 'lucide-vue-next'
 
 const ICONS = {
-  ArrowLeft, BadgePercent, Bot, Brain, CalendarDays, ChartLine, Check, ChevronDown, ChevronLeft, CircleCheck, ClipboardList,
-  Code, Copy, Crown, DoorOpen, Download, Film, FlaskConical, FolderPlus, Gift, Handshake, History, Image, Landmark,
+  ArrowLeft, ArrowUpLeft, BadgePercent, Bell, Bot, Brain, CalendarDays, ChartLine, Check, ChevronDown, ChevronLeft, CircleCheck, CircleHelp, ClipboardList,
+  Code, Copy, Crown, DoorOpen, Download, FileText, Film, FlaskConical, FolderPlus, Gift, Handshake, History, Image, Landmark,
   Layers, LayoutGrid, Lightbulb, Loader: LoaderCircle, Lock, LogOut, Magnet, Mail, MailOpen, Map: MapIcon, Megaphone, Menu,
   MessageSquare, Mic, MousePointerClick, Network, PanelTop, PenLine, Plug, Presentation, Radar, RefreshCw, Repeat,
   Rocket, Scale, ScanSearch, Search, Settings, Settings2, Share2, ShieldCheck, Smartphone, Sparkles, SpellCheck, Star,

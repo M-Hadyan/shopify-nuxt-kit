@@ -9,7 +9,7 @@ async function copy() {
 </script>
 
 <template>
-  <button class="btn-secondary" type="button" @click="copy">
+  <button class="btn-file" type="button" @click="copy">
     <AppIcon :name="done ? 'Check' : 'Copy'" :size="16" /> {{ done ? 'تم النسخ' : 'نسخ' }}
   </button>
 </template>
