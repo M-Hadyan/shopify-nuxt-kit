@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   const api = getSallaApi(rec)
   const [context, system] = await Promise.all([buildStoreContext(api, STORE_DATA), skillSystem(skill)])
-  const model = aiModel()
+  const { model, effort, maxTokens } = pickModel(plan, skill)
 
   const run: RunRecord = {
     id: newId('run_'), storeId: rec.id, skill: skill.slug, title: skill.title,
@@ -34,9 +34,9 @@ export default defineEventHandler(async (event) => {
       try {
         const s = anthropic().beta.messages.stream({
           model,
-          max_tokens: 64000,
+          max_tokens: maxTokens,
           thinking: { type: 'adaptive' },
-          output_config: { effort: plan.effort },
+          output_config: { effort },
           ...fallbackParams(model),
           system,
           messages: [{ role: 'user', content: skillUserPrompt(skill, context, request) }],
@@ -48,7 +48,15 @@ export default defineEventHandler(async (event) => {
           }
         }
         const final = await s.finalMessage()
-        run.usage = { input: final.usage.input_tokens, output: final.usage.output_tokens }
+        const u = final.usage
+        run.usage = { input: u.input_tokens, output: u.output_tokens, cacheRead: u.cache_read_input_tokens ?? 0, cacheWrite: u.cache_creation_input_tokens ?? 0 }
+        run.model = final.model
+        run.costSar = runCostSar(final.model, u)
+        if (final.stop_reason === 'max_tokens') {
+          const note = '\n\n> وصلت النتيجة للحد الأقصى للطول. اطلب جزء محدد لو تبي تفاصيل أكثر.'
+          run.output += note
+          controller.enqueue(encoder.encode(note))
+        }
         if (final.stop_reason === 'refusal') {
           run.status = 'refused'
           const note = '\n\n> تعذر إكمال هذا الطلب. جرّب صياغة مختلفة.'

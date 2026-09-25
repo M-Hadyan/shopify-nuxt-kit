@@ -79,6 +79,13 @@ const ROWS: Row[] = [
 
 export const SKILLS: SkillDef[] = ROWS.map(([slug, title, tagline, icon, tone, category]) => ({ slug, title, tagline, icon, tone, category }))
 
+// المهارات الاستراتيجية الثقيلة: تحليل وتخطيط يستفيد من أقوى نموذج
+export const HEAVY_SKILLS = new Set([
+  'marketing-plan', 'marketing-council', 'product-marketing', 'competitor-profiling', 'customer-research',
+  'pricing', 'launch', 'offers', 'content-strategy', 'seo-audit', 'ai-seo', 'site-architecture',
+  'programmatic-seo', 'attribution', 'analytics', 'churn-prevention', 'marketing-loops', 'revops',
+])
+
 export function getSkill(slug: string): SkillDef | undefined {
   return SKILLS.find(s => s.slug === slug)
 }

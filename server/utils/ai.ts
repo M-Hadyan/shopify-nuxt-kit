@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { BetaMessageStreamParams } from '@anthropic-ai/sdk/resources/beta/messages/messages'
-import type { SkillDef } from '#shared/types'
+import type { PlanDef, SkillDef } from '#shared/types'
 
 let client: Anthropic | null = null
 
@@ -13,8 +13,17 @@ export function anthropic() {
   return client
 }
 
-export function aiModel() {
-  return useRuntimeConfig().anthropicModel || 'claude-opus-5'
+// توزيع النماذج حسب الباقة وثقل المهارة (للتحكم في التكلفة)
+export function pickModel(plan: PlanDef, skill: SkillDef) {
+  const c = useRuntimeConfig()
+  const heavy = HEAVY_SKILLS.has(skill.slug)
+  const premium = heavy && plan.premiumModel
+  return {
+    model: premium ? (c.anthropicModelPremium || 'claude-opus-5') : (c.anthropicModelStandard || 'claude-sonnet-5'),
+    effort: plan.effort,
+    // سقف المخرجات (يشمل التفكير) يحدد أقصى تكلفة للتشغيل الواحد
+    maxTokens: heavy ? 24000 : 16000,
+  }
 }
 
 // fallbacks: "default" — لو رفض النموذج الطلب، الـ API يعيد تشغيله على نموذج بديل مناسب تلقائيًا

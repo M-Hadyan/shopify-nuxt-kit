@@ -27,7 +27,12 @@ export default defineNuxtConfig({
     sessionPassword: '',
     // Claude API
     anthropicApiKey: '',
-    anthropicModel: 'claude-opus-5',
+    // المهارات الاستراتيجية في باقتي نمو واحتراف
+    anthropicModelPremium: 'claude-opus-5',
+    // باقي المهارات
+    anthropicModelStandard: 'claude-sonnet-5',
+    // مفتاح صفحة التكاليف الداخلية (/api/admin/costs)
+    adminToken: '',
     // Salla Partners app
     sallaClientId: '',
     sallaClientSecret: '',

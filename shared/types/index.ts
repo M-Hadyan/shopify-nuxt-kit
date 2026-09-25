@@ -104,7 +104,9 @@ export interface RunRecord {
   output: string
   status: 'done' | 'error' | 'refused'
   createdAt: string
-  usage?: { input: number; output: number }
+  usage?: { input: number; output: number; cacheRead?: number; cacheWrite?: number }
+  model?: string
+  costSar?: number | null
 }
 
 export type PlanId = 'starter' | 'growth' | 'pro'
@@ -117,6 +119,7 @@ export interface PlanDef {
   yearlyPrice: number // ر.س سنويًا
   runsPerMonth: number
   categories: SkillCategory[] | 'all' // التصنيفات المتاحة
+  premiumModel: boolean // المهارات الثقيلة على أقوى نموذج
   effort: 'medium' | 'high' // عمق التحليل
   features: string[]
   highlighted?: boolean
