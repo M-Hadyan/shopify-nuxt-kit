@@ -1,8 +1,8 @@
 import type {
-  AbandonedCart, Coupon, CouponInput, Customer, Order, Product, ProductUpdate, Review, StoreInfo,
+  AbandonedCart, Coupon, Customer, Order, Product, Review, StoreInfo,
 } from '#shared/types'
 import type { ListOptions, SallaApi } from './types'
-import { getJson, newId, setJson } from '../db'
+import { getJson, setJson } from '../db'
 
 // متجر تجريبي كامل لعرض رواج قبل ربط سلة الحقيقي
 const CUR = 'SAR'
@@ -153,7 +153,7 @@ function paginate<T>(items: T[], opts?: ListOptions) {
   return items.slice((page - 1) * per, page * per)
 }
 
-// يحفظ التعديلات (تحديث المنتجات، الكوبونات) لكل متجر تجريبي على حدة
+// كل متجر تجريبي له نسخته من البيانات
 export class DemoSallaApi implements SallaApi {
   constructor(private storeId: string) {}
 
@@ -181,34 +181,10 @@ export class DemoSallaApi implements SallaApi {
     return p
   }
 
-  async updateProduct(id: string, patch: ProductUpdate) {
-    const s = await this.state()
-    const p = s.products.find(x => x.id === id)
-    if (!p) throw createError({ statusCode: 404, statusMessage: 'المنتج غير موجود' })
-    if (patch.name !== undefined) p.name = patch.name
-    if (patch.description !== undefined) p.description = patch.description
-    if (patch.seoTitle !== undefined) p.seoTitle = patch.seoTitle
-    if (patch.seoDescription !== undefined) p.seoDescription = patch.seoDescription
-    if (patch.price !== undefined) p.price = m(patch.price)
-    if (patch.salePrice !== undefined) p.salePrice = patch.salePrice === null ? null : m(patch.salePrice)
-    await setJson(this.key(), s)
-    return p
-  }
 
   async listOrders(opts?: ListOptions) { return paginate((await this.state()).orders, opts) }
   async listCustomers(opts?: ListOptions) { return paginate((await this.state()).customers, opts) }
   async listAbandonedCarts(opts?: ListOptions) { return paginate((await this.state()).carts, opts) }
   async listReviews(opts?: ListOptions) { return paginate((await this.state()).reviews, opts) }
   async listCoupons(opts?: ListOptions) { return paginate((await this.state()).coupons, opts) }
-
-  async createCoupon(input: CouponInput) {
-    const s = await this.state()
-    if (s.coupons.some(c => c.code.toLowerCase() === input.code.toLowerCase())) {
-      throw createError({ statusCode: 422, statusMessage: `الكود ${input.code} مستخدم مسبقًا` })
-    }
-    const c: Coupon = { ...input, id: newId('cp'), status: 'active', usedCount: 0 }
-    s.coupons.unshift(c)
-    await setJson(this.key(), s)
-    return c
-  }
 }

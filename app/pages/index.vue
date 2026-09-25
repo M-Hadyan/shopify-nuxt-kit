@@ -20,19 +20,19 @@ async function tryDemo() {
 
 const steps = [
   { icon: 'Plug', title: 'اربط متجرك', text: 'ثبّت رواج من متجر تطبيقات سلة بضغطة، بدون أي إعدادات تقنية.' },
-  { icon: 'ScanSearch', title: 'رواج يقرأ متجرك', text: 'منتجاتك وطلباتك وعملاؤك وسلاتك المتروكة وتقييماتك، كلها تصير سياق للذكاء الاصطناعي.' },
-  { icon: 'WandSparkles', title: 'اختر بطاقة وشغّلها', text: 'تحليل، أوصاف، عروض، إعلانات، حملات مواسم… نتائج مبنية على أرقامك وجاهزة للتطبيق.' },
+  { icon: 'LayoutGrid', title: 'اختر مهارة', text: `${SKILLS.length} مهارة تسويقية: إعلانات، محتوى، SEO، عروض، تسعير، إطلاق، وغيرها.` },
+  { icon: 'WandSparkles', title: 'اكتب طلبك', text: 'رواج يطبّق منهجية خبراء التسويق على بيانات متجرك ويعطيك نتيجة جاهزة.' },
 ]
 
 const features = [
-  { icon: 'Zap', title: 'قراءة وكتابة على متجرك', text: 'مو بس اقتراحات: حدّث أوصاف المنتجات وأنشئ الكوبونات من رواج مباشرة، بعد موافقتك.' },
-  { icon: 'ShieldCheck', title: 'ما يتغير شي بدون إذنك', text: 'كل تعديل يطلع لك كاقتراح واضح (قبل/بعد) وأنت تضغط تطبيق أو رفض.' },
-  { icon: 'Sparkles', title: 'منهجيات خبراء التسويق', text: 'كل بطاقة مبنية على منهجيات تسويق مجربة، مكيّفة للسوق السعودي ومواسمه.' },
-  { icon: 'Bot', title: 'مساعد يعرف متجرك', text: 'اسأل «وش أكثر منتج ينترك في السلة؟» أو «سوّ لي كوبون لليوم الوطني» ويتصرف.' },
+  { icon: 'Sparkles', title: 'منهجيات خبراء التسويق', text: 'كل مهارة مبنية على منهجية تسويق مجربة، مكيّفة للسوق السعودي ومواسمه.' },
+  { icon: 'Store', title: 'يعرف متجرك', text: 'يقرأ منتجاتك وطلباتك وتقييماتك من سلة، فالنتائج مبنية على أرقامك مو كلام عام.' },
+  { icon: 'ShieldCheck', title: 'قراءة فقط', text: 'رواج ما يعدّل أي شي في متجرك، يقرأ البيانات عشان يسوّق لك صح.' },
+  { icon: 'History', title: 'كل نتائجك محفوظة', text: 'ارجع لأي خطة أو محتوى طلّعته، انسخه أو حمّله.' },
 ]
 
 const faqs = [
-  { q: 'هل رواج يعدل على متجري بدون علمي؟', a: 'لا. كل تعديل (منتج أو كوبون) يظهر لك كاقتراح، وما يتنفذ إلا لما تضغط «تطبيق».' },
+  { q: 'هل رواج يعدل على متجري؟', a: 'لا. رواج يقرأ بيانات متجرك فقط عشان يبني عليها التسويق.' },
   { q: 'كيف الدفع؟', a: 'الاشتراك يتم من داخل متجر تطبيقات سلة، والفاتورة تنضاف على حسابك في سلة مثل أي تطبيق.' },
   { q: 'وش البيانات اللي يقرأها رواج؟', a: 'بيانات المتجر، المنتجات، الطلبات، العملاء، السلات المتروكة، التقييمات، والكوبونات. بياناتك ما تُستخدم لأي غرض غير خدمتك.' },
   { q: 'أقدر أجرب قبل الاشتراك؟', a: 'أكيد. فيه تجربة مجانية عند التثبيت، وتقدر الحين تجرب المتجر التجريبي بدون تسجيل.' },
@@ -49,7 +49,7 @@ const preview = SKILLS.slice(0, 8)
         <AppLogo />
         <nav class="hidden items-center gap-7 text-sm text-muted md:flex">
           <a href="#how" class="hover:text-ink">كيف يشتغل</a>
-          <a href="#cards" class="hover:text-ink">البطاقات</a>
+          <a href="#cards" class="hover:text-ink">المهارات</a>
           <a href="#pricing" class="hover:text-ink">الباقات</a>
           <a href="#faq" class="hover:text-ink">الأسئلة</a>
         </nav>
@@ -72,7 +72,7 @@ const preview = SKILLS.slice(0, 8)
             <br>بقرارات مبنية على أرقامك
           </h1>
           <p class="mt-5 max-w-xl text-lg leading-8 text-muted">
-            رواج يقرأ متجرك في سلة ويحوّل بياناته إلى تحليلات وعروض وأوصاف وإعلانات وحملات جاهزة، ويطبّقها على متجرك بضغطة زر.
+            رواج يقرأ متجرك في سلة ويعطيك خبير تسويق في كل مجال: إعلانات، محتوى، SEO، عروض، تسعير، وحملات جاهزة للتنفيذ.
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a :href="config.public.sallaAppStoreUrl" target="_blank" rel="noopener" class="btn-primary px-6 py-3 text-base">
@@ -92,7 +92,7 @@ const preview = SKILLS.slice(0, 8)
           <div class="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-500/20 to-accent-400/20 blur-2xl" />
           <div class="card p-4 sm:p-5">
             <div class="mb-4 flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm font-semibold"><AppIcon name="LayoutGrid" :size="18" class="text-brand-400" /> بطاقاتك التسويقية</div>
+              <div class="flex items-center gap-2 text-sm font-semibold"><AppIcon name="LayoutGrid" :size="18" class="text-brand-400" /> مهاراتك التسويقية</div>
               <span class="chip bg-emerald-500/10 text-emerald-300">متصل بسلة</span>
             </div>
             <div class="grid grid-cols-2 gap-3">
@@ -128,8 +128,8 @@ const preview = SKILLS.slice(0, 8)
     <section id="cards" class="py-20">
       <div class="mx-auto max-w-6xl px-4 sm:px-6">
         <div class="mx-auto max-w-2xl text-center">
-          <h2 class="text-3xl font-bold">{{ num(SKILLS.length) }} بطاقة تسويقية جاهزة</h2>
-          <p class="mt-3 text-lg text-muted">كل بطاقة خبير تسويق متخصص، يشتغل على بيانات متجرك أنت.</p>
+          <h2 class="text-3xl font-bold">{{ num(SKILLS.length) }} مهارة تسويقية جاهزة</h2>
+          <p class="mt-3 text-lg text-muted">كل مهارة خبير تسويق متخصص، يشتغل على بيانات متجرك أنت.</p>
         </div>
         <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div v-for="s in SKILLS" :key="s.slug" class="card card-hover p-5">
@@ -144,7 +144,7 @@ const preview = SKILLS.slice(0, 8)
     <!-- المزايا -->
     <section class="py-20">
       <div class="mx-auto max-w-6xl px-4 sm:px-6">
-        <h2 class="text-center text-3xl font-bold">مو مجرد شات، رواج متصل بمتجرك</h2>
+        <h2 class="text-center text-3xl font-bold">تسويق مبني على بيانات متجرك</h2>
         <div class="mt-12 grid gap-5 sm:grid-cols-2">
           <div v-for="f in features" :key="f.title" class="card-hero p-6">
             <div class="icon-tile bg-brand-500/15 text-brand-300"><AppIcon :name="f.icon" /></div>
@@ -206,7 +206,7 @@ const preview = SKILLS.slice(0, 8)
       <div class="mx-auto max-w-4xl px-4 sm:px-6">
         <div class="rounded-[2rem] border border-brand-500/30 bg-gradient-to-l from-brand-800 to-brand-600 p-10 text-center text-white shadow-xl shadow-brand-600/20">
           <h2 class="text-3xl font-bold">جاهز تخلي متجرك يروج؟</h2>
-          <p class="mt-3 text-white/80">ثبّت رواج من سلة وابدأ بأول تحليل لمتجرك خلال دقيقة.</p>
+          <p class="mt-3 text-white/80">ثبّت رواج من سلة وابدأ بأول خطة تسويق لمتجرك خلال دقيقة.</p>
           <div class="mt-7 flex flex-wrap justify-center gap-3">
             <a :href="config.public.sallaAppStoreUrl" target="_blank" rel="noopener" class="btn bg-white px-6 py-3 text-brand-800 hover:bg-brand-50">ثبّت من سلة</a>
             <button class="btn border border-white/30 px-6 py-3 text-white hover:bg-white/10" :disabled="loading" @click="tryDemo">جرّب المتجر التجريبي</button>

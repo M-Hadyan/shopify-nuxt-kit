@@ -1,27 +1,24 @@
 # رواج — مساعد التسويق الذكي لتجار سلة
 
-رواج منصة SaaS لتجار **سلة**. تقرأ بيانات المتجر (المنتجات، الطلبات، العملاء، السلات المتروكة، التقييمات، الكوبونات)، وتشغّل عليها «بطاقات» تسويقية بالذكاء الاصطناعي. كل بطاقة مبنية على منهجيات [marketingskills](https://github.com/coreyhaines31/marketingskills). وتقدر المنصة **تكتب** على المتجر أيضًا (تحديث المنتجات وإنشاء الكوبونات)، لكن بعد موافقة التاجر فقط.
+رواج منصة تسويق فقط لتجار **سلة**. تضم كل مهارات ريبو [marketingskills](https://github.com/coreyhaines31/marketingskills) (٥٠ مهارة)، وكل مهارة بطاقة. التاجر يختار مهارة ويكتب طلبه، ورواج يطبّق منهجية المهارة على ملخص بيانات متجره في سلة (قراءة فقط) ويعطيه نتيجة جاهزة.
 
 ## المزايا
 
 | الجزء | الوصف |
 |---|---|
-| **صفحة الهبوط** | تعريف بالمنصة، طريقة العمل، البطاقات، الباقات، والأسئلة الشائعة |
-| **مركز القيادة** | المبيعات مع نسبة التغير، فترة التقرير (أسبوعي / شهري / سنوي)، السلات المتروكة، الأكثر مبيعًا، والخطوة التالية المقترحة |
-| **الشروحات** | دليل سريع لكل جزء في المنصة |
-| **البطاقات التسويقية (١٤)** | تحليل المتجر، أوصاف المنتجات، استرجاع السلات، العروض، الإعلانات، السوشال، SEO، المواسم، آراء العملاء، الشرائح والولاء، الرسائل، المؤثرين، خطة ٩٠ يوم، رفع التحويل |
-| **المنتجات** | اقتراح اسم ووصف وبيانات SEO جديدة لأي منتج، مع معاينة قوقل، ثم «طبّق على متجري» |
-| **مساعد رواج** | محادثة تقرأ المتجر بأدوات، وتقترح تعديلات (منتج أو كوبون) تظهر كبطاقة «قبل/بعد» ولا تُنفّذ إلا بعد ضغط «تطبيق» |
-| **السجل** | كل نتائج البطاقات محفوظة ويمكن نسخها أو تحميلها |
-| **الباقات** | فوترة من داخل سلة عبر ويبهوكات الاشتراك، مع حد تشغيلات شهري لكل باقة |
-| **المتجر التجريبي** | متجر عطور وهمي كامل لتجربة المنصة قبل ربط سلة |
+| **صفحة الهبوط** | تعريف بالمنصة، طريقة العمل، المهارات، الباقات، والأسئلة الشائعة |
+| **المهارات (٥٠)** | كل مهارات الريبو بنفس تصنيفاته: رفع التحويل، المحتوى، SEO، الإعلانات، القياس، الاحتفاظ، النمو، الاستراتيجية، المبيعات |
+| **تشغيل المهارة** | طلب حر (اختياري) والنتيجة تنكتب مباشرة، مع نسخ وتحميل Markdown |
+| **السجل** | كل النتائج محفوظة |
+| **الباقات** | فوترة من داخل سلة عبر ويبهوكات الاشتراك، وحد تشغيلات شهري لكل باقة |
+| **المتجر التجريبي** | متجر عطور وهمي لتجربة المنصة قبل ربط سلة |
 
 ## التقنيات
 
 - **Nuxt 4** + Vue 3 + TypeScript
 - **Tailwind CSS v4**، واجهة عربية RTL بثيم داكن وأخضر زمردي، وخط Alexandria
-- **Claude API** (`@anthropic-ai/sdk`): النموذج `claude-opus-5` مع adaptive thinking، بث مباشر للنتائج، مخرجات منظمة (JSON schema) لتحسين المنتجات، استخدام الأدوات للمساعد، prompt caching لمراجع المهارات، و `fallbacks: "default"` (لو رفض النموذج طلبًا يُعاد تلقائيًا على نموذج بديل)
-- **Salla Admin API v2** + OAuth 2.0 + Webhooks
+- **Claude API** (`@anthropic-ai/sdk`): النموذج `claude-opus-5` مع adaptive thinking، بث مباشر للنتائج، prompt caching لمرجع المهارة، و `fallbacks: "default"` (لو رفض النموذج طلبًا يُعاد تلقائيًا على نموذج بديل)
+- **Salla Admin API v2** (قراءة فقط) + OAuth 2.0 + Webhooks
 - التخزين عبر Nitro `useStorage` (ملفات محلية في التطوير، ويمكن تبديله إلى Redis أو Postgres أو غيرها بتغيير الـ driver)
 
 ## التشغيل محليًا
@@ -46,7 +43,7 @@ npm run dev             # http://localhost:3000
 1. أنشئ تطبيقًا في [بوابة شركاء سلة](https://portal.salla.partners).
 2. **Redirect URL**: `https://<دومينك>/api/auth/salla/callback`
 3. **Webhook URL**: `https://<دومينك>/api/webhooks/salla`. اختر استراتيجية التوقيع (Signature)، وضع السر في `NUXT_SALLA_WEBHOOK_SECRET`.
-4. **الصلاحيات (Scopes)**: `offline_access settings.read products.read_write orders.read customers.read marketing.read_write carts.read reviews.read`
+4. **الصلاحيات (Scopes)**: `offline_access settings.read products.read orders.read customers.read marketing.read carts.read reviews.read`
 5. **الباقات**: عرّف باقات التطبيق في سلة بأسماء تحتوي `basic` أو `pro` أو `business`. الربط مع باقات رواج يصير في `shared/utils/plans.ts`.
 6. عبّ `NUXT_SALLA_CLIENT_ID` و `NUXT_SALLA_CLIENT_SECRET` و `NUXT_SALLA_REDIRECT_URI`.
 7. في الإنتاج: `NUXT_DEMO_MODE=false` ونص عشوائي طويل في `NUXT_SESSION_PASSWORD`.
@@ -60,42 +57,29 @@ npm run dev             # http://localhost:3000
 ```
 app/
   pages/index.vue            صفحة الهبوط
-  pages/app/…                لوحة التحكم (الرئيسية، البطاقات، المساعد، المنتجات، السجل، الإعدادات)
-  components/                SkillCard، StatCard، SalesChart، MarkdownView…
-  layouts/dashboard.vue      الشريط الجانبي
+  pages/app/index.vue        كل المهارات (بحث وتصنيفات)
+  pages/app/skills/[slug]    تشغيل مهارة
+  pages/app/history          السجل
+  pages/app/settings.vue     المتجر والباقة
   assets/css/main.css        ألوان الهوية (غيّرها هنا)
-shared/
-  utils/skills.ts            تعريف البطاقات (العنوان، المهارات المصدر، البيانات، المدخلات، المهمة)
-  utils/plans.ts             الباقات والحدود
-  types/                     الأنواع المشتركة
+shared/utils/skills.ts       قائمة المهارات (العنوان العربي، الأيقونة، التصنيف)
+shared/utils/plans.ts        الباقات والحدود
 server/
-  api/                       المسارات (auth، webhooks، store، skills، assistant، actions، runs)
-  utils/ai.ts                Claude: التعليمات، تحميل المهارات، تحسين المنتج
-  utils/assistant.ts         المساعد: الأدوات، حلقة الأدوات، الاقتراحات
-  utils/store-api.ts         ملخص المتجر وسياق الذكاء الاصطناعي
+  api/                       auth، webhooks، skills، runs، me
+  utils/ai.ts                Claude: التعليمات وتحميل مرجع المهارة
+  utils/store-api.ts         ملخص بيانات المتجر للذكاء الاصطناعي
   utils/salla/               عميل سلة الحقيقي والتجريبي وOAuth
   assets/skills/             ملفات SKILL.md من marketingskills (MIT)
 ```
 
-## إضافة بطاقة جديدة
+## تحديث المهارات من الريبو
 
-أضف عنصرًا في `shared/utils/skills.ts`:
-
-```ts
-{
-  slug: 'my-card',
-  title: 'عنوان البطاقة',
-  tagline: '…',
-  description: '…',
-  icon: 'Sparkles',            // من AppIcon.vue
-  tone: 'violet',
-  category: 'sales',
-  sources: ['offers', 'pricing'], // أسماء ملفات server/assets/skills
-  data: ['products', 'orders'],   // البيانات اللي تُرسل للنموذج
-  inputs: [],
-  task: 'المطلوب بالتفصيل…',
-}
+```bash
+git clone https://github.com/coreyhaines31/marketingskills /tmp/marketingskills
+npm run sync-skills /tmp/marketingskills
 ```
+
+لو أُضيفت مهارة جديدة في الريبو، أضف لها سطرًا في `shared/utils/skills.ts` (العنوان العربي والأيقونة والتصنيف).
 
 ## الترخيص
 

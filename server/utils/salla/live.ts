@@ -1,5 +1,5 @@
 import type {
-  AbandonedCart, Coupon, CouponInput, Customer, Money, Order, Product, ProductUpdate, Review, StoreInfo,
+  AbandonedCart, Coupon, Customer, Money, Order, Product, Review, StoreInfo,
 } from '#shared/types'
 import type { ListOptions, SallaApi } from './types'
 import type { StoreRecord } from '../db'
@@ -114,11 +114,9 @@ export class LiveSallaApi implements SallaApi {
     return fresh.accessToken
   }
 
-  private async call<T = Raw>(path: string, opts: { method?: 'GET' | 'POST' | 'PUT'; query?: Record<string, unknown>; body?: unknown } = {}) {
+  private async call<T = Raw>(path: string, opts: { query?: Record<string, unknown> } = {}) {
     const res = await $fetch<{ data: T }>(`${SALLA_API}${path}`, {
-      method: opts.method ?? 'GET',
       query: opts.query,
-      body: opts.body as Record<string, unknown> | undefined,
       headers: { Authorization: `Bearer ${await this.token()}`, Accept: 'application/json' },
     }).catch((e: Raw) => {
       const msg = e?.data?.error?.message ?? e?.message ?? 'Salla API error'
@@ -142,36 +140,10 @@ export class LiveSallaApi implements SallaApi {
   async listProducts(opts?: ListOptions) { return (await this.call<Raw[]>('/products', { query: this.q(opts) })).map(mapProduct) }
   async getProduct(id: string) { return mapProduct(await this.call(`/products/${id}`)) }
 
-  async updateProduct(id: string, patch: ProductUpdate) {
-    const body: Record<string, unknown> = {}
-    if (patch.name !== undefined) body.name = patch.name
-    if (patch.description !== undefined) body.description = patch.description
-    if (patch.price !== undefined) body.price = patch.price
-    if (patch.salePrice !== undefined) body.sale_price = patch.salePrice ?? 0
-    if (patch.seoTitle !== undefined) body.metadata_title = patch.seoTitle
-    if (patch.seoDescription !== undefined) body.metadata_description = patch.seoDescription
-    return mapProduct(await this.call(`/products/${id}`, { method: 'PUT', body }))
-  }
 
   async listOrders(opts?: ListOptions) { return (await this.call<Raw[]>('/orders', { query: this.q(opts) })).map(mapOrder) }
   async listCustomers(opts?: ListOptions) { return (await this.call<Raw[]>('/customers', { query: this.q(opts) })).map(mapCustomer) }
   async listAbandonedCarts(opts?: ListOptions) { return (await this.call<Raw[]>('/carts/abandoned', { query: this.q(opts) })).map(mapCart) }
   async listReviews(opts?: ListOptions) { return (await this.call<Raw[]>('/reviews', { query: { ...this.q(opts), type: 'rating' } })).map(mapReview) }
   async listCoupons(opts?: ListOptions) { return (await this.call<Raw[]>('/coupons', { query: this.q(opts) })).map(mapCoupon) }
-
-  async createCoupon(input: CouponInput) {
-    return mapCoupon(await this.call('/coupons', {
-      method: 'POST',
-      body: {
-        code: input.code,
-        type: input.type,
-        amount: input.amount,
-        free_shipping: input.freeShipping ?? false,
-        minimum_amount: input.minimumAmount,
-        start_date: input.startDate,
-        expiry_date: input.expiryDate,
-        usage_limit: input.usageLimit,
-      },
-    }))
-  }
 }

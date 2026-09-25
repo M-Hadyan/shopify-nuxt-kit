@@ -1,4 +1,4 @@
-import type { DataKey, Order, StoreOverview } from '#shared/types'
+import type { DataKey, Order } from '#shared/types'
 import type { StoreRecord } from './db'
 import type { SallaApi } from './salla/types'
 import { DemoSallaApi } from './salla/demo'
@@ -11,72 +11,6 @@ export function getSallaApi(rec: StoreRecord): SallaApi {
 
 const DAY = 864e5
 const isValid = (o: Order) => !/ملغي|cancel/i.test(o.status)
-
-export async function buildOverview(api: SallaApi, days = 30): Promise<StoreOverview> {
-  const [store, products, orders, carts, reviews, customers] = await Promise.all([
-    api.getStoreInfo(),
-    api.listProducts({ perPage: 100 }),
-    api.listOrders({ perPage: days > 30 ? 1000 : 200 }),
-    api.listAbandonedCarts({ perPage: 100 }),
-    api.listReviews({ perPage: 100 }),
-    api.listCustomers({ perPage: 200 }),
-  ])
-  const since = Date.now() - days * DAY
-  const recent = orders.filter(o => isValid(o) && new Date(o.date).getTime() >= since)
-  const revenue = recent.reduce((a, o) => a + o.total.amount, 0)
-  const prevRevenue = orders
-    .filter(o => isValid(o) && new Date(o.date).getTime() >= since - days * DAY && new Date(o.date).getTime() < since)
-    .reduce((a, o) => a + o.total.amount, 0)
-
-  // السنوي يُجمع شهريًا، وغيره يوميًا
-  const monthly = days > 60
-  const keyOf = (d: string) => (monthly ? d.slice(0, 7) : d.slice(0, 10))
-  const byDay = new Map<string, number>()
-  if (monthly) {
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date()
-      d.setUTCDate(1)
-      d.setUTCMonth(d.getUTCMonth() - i)
-      byDay.set(d.toISOString().slice(0, 7), 0)
-    }
-  } else {
-    for (let i = days - 1; i >= 0; i--) byDay.set(new Date(Date.now() - i * DAY).toISOString().slice(0, 10), 0)
-  }
-  for (const o of recent) {
-    const k = keyOf(o.date)
-    if (byDay.has(k)) byDay.set(k, byDay.get(k)! + o.total.amount)
-  }
-
-  const top = new Map<string, { sold: number; revenue: number }>()
-  for (const o of recent) for (const it of o.items) {
-    const t = top.get(it.name) ?? { sold: 0, revenue: 0 }
-    t.sold += it.quantity
-    t.revenue += it.amount
-    top.set(it.name, t)
-  }
-
-  return {
-    store,
-    kpis: {
-      revenue: Math.round(revenue),
-      revenueChange: prevRevenue ? Math.round(((revenue - prevRevenue) / prevRevenue) * 1000) / 10 : null,
-      days,
-      orders: recent.length,
-      aov: recent.length ? Math.round(revenue / recent.length) : 0,
-      productsCount: products.length,
-      outOfStock: products.filter(p => p.quantity === 0).length,
-      abandonedCarts: carts.length,
-      abandonedValue: Math.round(carts.reduce((a, c) => a + c.total.amount, 0)),
-      avgRating: reviews.length ? Math.round((reviews.reduce((a, r) => a + r.rating, 0) / reviews.length) * 10) / 10 : null,
-      customersCount: customers.length,
-    },
-    salesByDay: [...byDay].map(([date, total]) => ({ date, total: Math.round(total) })),
-    topProducts: [...top]
-      .map(([name, t]) => ({ id: products.find(p => p.name === name)?.id ?? name, name, ...t }))
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5),
-  }
-}
 
 const stripHtml = (s: string) => s.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n)}…` : s)

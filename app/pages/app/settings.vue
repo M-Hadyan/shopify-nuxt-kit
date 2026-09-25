@@ -24,8 +24,7 @@ const { data: me } = await useMe()
         </dl>
         <div class="mt-5 rounded-xl bg-surface p-4 text-sm text-muted">
           <div class="mb-1 font-semibold text-ink">الصلاحيات</div>
-          قراءة: المتجر، المنتجات، الطلبات، العملاء، السلات المتروكة، التقييمات.<br>
-          كتابة: المنتجات (الاسم، الوصف، SEO، السعر) والكوبونات، وبعد موافقتك فقط.
+          قراءة فقط: بيانات المتجر، المنتجات، الطلبات، العملاء، السلات المتروكة، التقييمات، والكوبونات. رواج ما يعدّل أي شي في متجرك.
         </div>
         <a v-if="me.demo" href="/api/auth/salla" class="btn-primary mt-5 w-full"><AppIcon name="Plug" :size="18" /> اربط متجرك الحقيقي من سلة</a>
       </div>

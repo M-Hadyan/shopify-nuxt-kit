@@ -3,14 +3,14 @@ import type { SallaTokens } from '../db'
 export const SALLA_ACCOUNTS = 'https://accounts.salla.sa'
 export const SALLA_API = 'https://api.salla.dev/admin/v2'
 
-// صلاحيات القراءة والكتابة اللي يحتاجها رواج
+// صلاحيات القراءة اللي يحتاجها رواج (قراءة فقط)
 export const SALLA_SCOPES = [
   'offline_access',
   'settings.read',
-  'products.read_write',
+  'products.read',
   'orders.read',
   'customers.read',
-  'marketing.read_write',
+  'marketing.read',
   'carts.read',
   'reviews.read',
 ].join(' ')

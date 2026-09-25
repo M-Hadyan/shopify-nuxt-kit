@@ -5,14 +5,11 @@ const open = ref(false)
 watch(() => route.fullPath, () => (open.value = false))
 
 const nav = [
-  { to: '/app', label: 'الرئيسية', icon: 'LayoutDashboard', exact: true },
-  { to: '/app/skills', label: 'البطاقات التسويقية', icon: 'LayoutGrid' },
-  { to: '/app/assistant', label: 'مساعد رواج', icon: 'Bot' },
-  { to: '/app/products', label: 'المنتجات', icon: 'Package' },
-  { to: '/app/history', label: 'السجل', icon: 'History' },
-  { to: '/app/settings', label: 'الإعدادات والباقة', icon: 'Settings' },
+  { to: '/app', label: 'المهارات التسويقية', icon: 'LayoutGrid', exact: false },
+  { to: '/app/history', label: 'السجل', icon: 'History', exact: false },
+  { to: '/app/settings', label: 'الإعدادات والباقة', icon: 'Settings', exact: false },
 ]
-const isActive = (i: typeof nav[number]) => (i.exact ? route.path === i.to : route.path.startsWith(i.to))
+const isActive = (i: typeof nav[number]) => (i.to === '/app' ? route.path === '/app' || route.path.startsWith('/app/skills') : route.path.startsWith(i.to))
 const usagePct = computed(() => me.value ? Math.min(100, (me.value.usage.runs / me.value.usage.limit) * 100) : 0)
 const initial = computed(() => me.value?.store.name.trim().charAt(0) ?? 'ر')
 
@@ -75,9 +72,6 @@ async function signOut() {
           <!-- الإجراءات -->
           <div class="flex items-center gap-2">
             <NuxtLink to="/app/settings" class="badge-gold shrink-0"><AppIcon name="Crown" :size="17" /> {{ me?.plan.name }}</NuxtLink>
-            <NuxtLink to="/app/help" class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-500/15 px-4 py-1.5 text-sm font-bold text-brand-300 transition hover:bg-brand-500/25">
-              <AppIcon name="CircleHelp" :size="17" /> الشروحات
-            </NuxtLink>
             <div class="flex flex-1 justify-end lg:flex-none">
               <span class="flex size-10 items-center justify-center rounded-full bg-brand-500/15 font-bold text-brand-300">{{ initial }}</span>
             </div>

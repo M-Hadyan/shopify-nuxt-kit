@@ -28,15 +28,6 @@ export interface Product {
   seoDescription?: string
 }
 
-export interface ProductUpdate {
-  name?: string
-  description?: string
-  seoTitle?: string
-  seoDescription?: string
-  price?: number
-  salePrice?: number | null
-}
-
 export interface OrderItem { name: string; quantity: number; amount: number }
 
 export interface Order {
@@ -79,92 +70,41 @@ export interface Review {
   date: string
 }
 
-export interface CouponInput {
+export interface Coupon {
+  id: string
   code: string
   type: 'percentage' | 'fixed'
   amount: number
   freeShipping?: boolean
   minimumAmount?: number
-  startDate?: string
   expiryDate: string
-  usageLimit?: number
-}
-
-export interface Coupon extends CouponInput { id: string; status: string; usedCount?: number }
-
-export interface StoreOverview {
-  store: StoreInfo
-  kpis: {
-    revenue: number
-    revenueChange: number | null // نسبة التغير عن الفترة السابقة
-    days: number
-    orders: number
-    aov: number
-    productsCount: number
-    outOfStock: number
-    abandonedCarts: number
-    abandonedValue: number
-    avgRating: number | null
-    customersCount: number
-  }
-  salesByDay: { date: string; total: number }[]
-  topProducts: { id: string; name: string; sold: number; revenue: number }[]
+  status: string
+  usedCount?: number
 }
 
 export type DataKey = 'store' | 'products' | 'orders' | 'customers' | 'carts' | 'reviews' | 'coupons'
 
-export interface SkillInput {
-  key: string
-  label: string
-  type: 'text' | 'textarea' | 'select'
-  options?: string[]
-  placeholder?: string
-  required?: boolean
-}
+export type SkillCategory = 'conversion' | 'content' | 'seo' | 'paid' | 'measurement' | 'retention' | 'growth' | 'strategy' | 'sales'
 
 export interface SkillDef {
-  slug: string
+  slug: string // اسم المهارة في ريبو marketingskills
   title: string
   tagline: string
-  description: string
   icon: string
   tone: 'violet' | 'teal' | 'amber' | 'rose' | 'sky' | 'emerald' | 'indigo' | 'orange'
   category: SkillCategory
-  sources: string[]
-  data: DataKey[]
-  inputs: SkillInput[]
-  task: string
 }
-
-export type SkillCategory = 'analysis' | 'content' | 'sales' | 'ads' | 'retention' | 'seasonal'
 
 export interface RunRecord {
   id: string
   storeId: string
   skill: string
   title: string
-  inputs: Record<string, string>
+  request: string
   output: string
   status: 'done' | 'error' | 'refused'
   createdAt: string
   usage?: { input: number; output: number }
-}
-
-export type ActionKind = 'update_product' | 'create_coupon'
-
-export interface PendingAction {
-  id: string
-  kind: ActionKind
-  summary: string
-  payload: Record<string, unknown>
-  status: 'pending' | 'applied' | 'rejected' | 'failed'
-  error?: string
-  createdAt: string
-}
-
-export interface ChatView {
-  id: string
-  messages: { role: 'user' | 'assistant'; text: string; actions?: PendingAction[] }[]
 }
 
 export interface PlanDef {

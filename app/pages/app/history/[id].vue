@@ -28,9 +28,7 @@ const skill = computed(() => run.value && getSkill(run.value.skill))
           <NuxtLink v-if="skill" :to="`/app/skills/${skill.slug}`" class="btn-primary"><AppIcon name="RefreshCw" :size="16" /> شغّل من جديد</NuxtLink>
         </div>
       </div>
-      <div v-if="Object.values(run.inputs).some(Boolean)" class="mt-4 flex flex-wrap gap-2">
-        <span v-for="(v, k) in run.inputs" v-show="v" :key="k" class="chip bg-surface text-muted">{{ skill?.inputs.find(i => i.key === k)?.label ?? k }}: {{ v }}</span>
-      </div>
+      <div v-if="run.request" class="panel mt-4 p-4 text-sm"><span class="text-muted">الطلب:</span> {{ run.request }}</div>
       <MarkdownView :source="run.output" class="mt-6" />
     </div>
   </div>

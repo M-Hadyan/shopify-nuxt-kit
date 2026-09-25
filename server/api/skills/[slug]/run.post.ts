@@ -1,4 +1,7 @@
-import type { RunRecord } from '#shared/types'
+import type { DataKey, RunRecord } from '#shared/types'
+
+// كل بطاقة تقرأ ملخص بيانات المتجر كامل
+const STORE_DATA: DataKey[] = ['store', 'products', 'orders', 'customers', 'carts', 'reviews', 'coupons']
 
 // يشغّل بطاقة مهارة على بيانات المتجر ويبث الناتج نصًا مباشرًا
 export default defineEventHandler(async (event) => {
@@ -7,21 +10,16 @@ export default defineEventHandler(async (event) => {
   if (!skill) throw createError({ statusCode: 404, statusMessage: 'المهارة غير موجودة' })
   await assertQuota(rec)
 
-  const body = (await readBody<{ inputs?: Record<string, string> }>(event)) ?? {}
-  const inputs = Object.fromEntries(
-    skill.inputs.map(i => [i.key, String(body.inputs?.[i.key] ?? '').slice(0, 2000)]),
-  )
-  for (const i of skill.inputs) {
-    if (i.required && !inputs[i.key]?.trim()) throw createError({ statusCode: 422, statusMessage: `الحقل «${i.label}» مطلوب` })
-  }
+  const body = (await readBody<{ request?: string }>(event)) ?? {}
+  const request = String(body.request ?? '').slice(0, 4000)
 
   const api = getSallaApi(rec)
-  const [context, system] = await Promise.all([buildStoreContext(api, skill.data), skillSystem(skill)])
+  const [context, system] = await Promise.all([buildStoreContext(api, STORE_DATA), skillSystem(skill)])
   const model = aiModel()
 
   const run: RunRecord = {
     id: newId('run_'), storeId: rec.id, skill: skill.slug, title: skill.title,
-    inputs, output: '', status: 'done', createdAt: new Date().toISOString(),
+    request, output: '', status: 'done', createdAt: new Date().toISOString(),
   }
   setResponseHeaders(event, {
     'Content-Type': 'text/plain; charset=utf-8',
@@ -41,7 +39,7 @@ export default defineEventHandler(async (event) => {
           output_config: { effort: 'high' },
           ...fallbackParams(model),
           system,
-          messages: [{ role: 'user', content: skillUserPrompt(skill, context, inputs) }],
+          messages: [{ role: 'user', content: skillUserPrompt(skill, context, request) }],
         })
         for await (const ev of s) {
           if (ev.type === 'content_block_delta' && ev.delta.type === 'text_delta') {
@@ -53,7 +51,7 @@ export default defineEventHandler(async (event) => {
         run.usage = { input: final.usage.input_tokens, output: final.usage.output_tokens }
         if (final.stop_reason === 'refusal') {
           run.status = 'refused'
-          const note = '\n\n> تعذر إكمال هذا الطلب. جرّب تعديل المدخلات.'
+          const note = '\n\n> تعذر إكمال هذا الطلب. جرّب صياغة مختلفة.'
           run.output += note
           controller.enqueue(encoder.encode(note))
         }
