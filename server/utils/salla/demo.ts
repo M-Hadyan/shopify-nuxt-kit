@@ -2,7 +2,7 @@ import type {
   AbandonedCart, Coupon, Customer, Order, Product, Review, StoreInfo,
 } from '#shared/types'
 import type { ListOptions, SallaApi } from './types'
-import { getJson, setJson } from '../db'
+import { DEMO_TTL, getJson, setJson } from '../db'
 
 // متجر تجريبي كامل لعرض رواج قبل ربط سلة الحقيقي
 const CUR = 'SAR'
@@ -163,7 +163,7 @@ export class DemoSallaApi implements SallaApi {
     const s = await getJson<DemoState>(this.key())
     if (s) return s
     const fresh = buildDemo()
-    await setJson(this.key(), fresh)
+    await setJson(this.key(), fresh, { ttl: DEMO_TTL })
     return fresh
   }
 

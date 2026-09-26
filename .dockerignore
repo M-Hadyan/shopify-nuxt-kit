@@ -2,8 +2,9 @@ node_modules
 .nuxt
 .output
 .data
-.env
-dist
-.DS_Store
-*.log
 .vercel
+.env
+.git
+tests
+docs
+*.log

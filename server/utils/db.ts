@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import type { PlanId, RunRecord, StoreInfo } from '#shared/types'
 
 export interface SallaTokens {
@@ -11,24 +12,37 @@ export interface StoreRecord {
   id: string
   info: StoreInfo
   demo: boolean
-  tokens?: SallaTokens
+  tokens?: SallaTokens // في الذاكرة فقط؛ في القاعدة تُحفظ مشفرة في tokensEnc
   plan: PlanId
   planStatus: 'active' | 'trial' | 'expired'
   planEndsAt?: string
   installedAt: string
   uninstalledAt?: string
+  suspended?: boolean // إيقاف من الأدمن
+  suspendedReason?: string
 }
 
 const db = () => useStorage('data')
 
 export const monthKey = (d = new Date()) => d.toISOString().slice(0, 7)
 
-export async function getStoreRecord(id: string) {
-  return db().getItem<StoreRecord>(`stores:${id}`)
+// بيانات المتاجر التجريبية تنحذف تلقائيًا بعد ٧ أيام
+export const DEMO_TTL = 7 * 24 * 3600
+const ttlFor = (demo: boolean) => (demo ? { ttl: DEMO_TTL } : undefined)
+
+type StoredRecord = Omit<StoreRecord, 'tokens'> & { tokensEnc?: string }
+
+export async function getStoreRecord(id: string): Promise<StoreRecord | null> {
+  const raw = await db().getItem<StoredRecord>(`stores:${id}`)
+  if (!raw) return null
+  const { tokensEnc, ...rest } = raw
+  return { ...rest, tokens: tokensEnc ? JSON.parse(decryptSecret(tokensEnc)) : undefined }
 }
 
 export async function saveStoreRecord(rec: StoreRecord) {
-  await db().setItem(`stores:${rec.id}`, rec)
+  const { tokens, ...rest } = rec
+  const stored: StoredRecord = { ...rest, tokensEnc: tokens ? encryptSecret(JSON.stringify(tokens)) : undefined }
+  await db().setItem(`stores:${rec.id}`, stored, ttlFor(rec.demo))
   return rec
 }
 
@@ -38,19 +52,46 @@ export async function updateStoreRecord(id: string, patch: Partial<StoreRecord>)
   return saveStoreRecord({ ...cur, ...patch })
 }
 
+// عدّاد الاستخدام الشهري (ذرّي، ينتهي بعد ٤٠ يوم)
+const usageKey = (storeId: string, month = monthKey()) => `usage:${storeId}:${month}`
+
 export async function getUsage(storeId: string, month = monthKey()) {
-  return (await db().getItem<number>(`usage:${storeId}:${month}`)) ?? 0
+  return counterGet(usageKey(storeId, month))
 }
 
 export async function incrementUsage(storeId: string) {
-  const key = `usage:${storeId}:${monthKey()}`
-  const n = ((await db().getItem<number>(key)) ?? 0) + 1
-  await db().setItem(key, n)
-  return n
+  return counterIncr(usageKey(storeId), 40 * 24 * 3600)
 }
 
-export async function saveRun(run: RunRecord) {
-  await db().setItem(`runs:${run.storeId}:${run.id}`, run)
+export async function decrementUsage(storeId: string) {
+  return counterDecr(usageKey(storeId))
+}
+
+// تشغيلات إضافية يهديها الأدمن لهذا الشهر
+export const bonusKey = (storeId: string, month = monthKey()) => `bonus:${storeId}:${month}`
+export const getBonus = (storeId: string) => counterGet(bonusKey(storeId))
+export const addBonus = (storeId: string, runs: number) => counterIncrBy(bonusKey(storeId), runs, 40 * 24 * 3600)
+
+// تكلفة المتجر والمهارة الشهرية (بالهللة ×١٠ = ملّي ريال)
+export const storeCostKey = (storeId: string, month = monthKey()) => `cost:${storeId}:${month}`
+export const skillRunsKey = (skill: string, month = monthKey()) => `skill-runs:${skill}:${month}`
+export const skillCostKey = (skill: string, month = monthKey()) => `skill-cost:${skill}:${month}`
+
+export async function listStoreRecords() {
+  const keys = await db().getKeys('stores')
+  const ids = keys.map(key => key.split(':').pop()!).filter(Boolean)
+  return (await Promise.all(ids.map(getStoreRecord))).filter((r): r is StoreRecord => !!r)
+}
+
+export async function saveRun(run: RunRecord, demo = false) {
+  await db().setItem(`runs:${run.storeId}:${run.id}`, run, ttlFor(demo))
+}
+
+// حذف بيانات المتجر عند إلغاء التثبيت (حماية البيانات)
+export async function deleteStoreData(storeId: string) {
+  const keys = [...await db().getKeys(`runs:${storeId}`), ...await db().getKeys(`demo:${storeId}`)]
+  await Promise.all(keys.map(key => db().removeItem(key)))
+  await counterDel(usageKey(storeId))
 }
 
 export async function getRun(storeId: string, id: string) {
@@ -67,10 +108,10 @@ export async function getJson<T>(key: string) {
   return db().getItem<T>(key)
 }
 
-export async function setJson<T>(key: string, value: T) {
-  await db().setItem(key, value as never)
+export async function setJson<T>(key: string, value: T, opts?: { ttl?: number }) {
+  await db().setItem(key, value as never, opts)
 }
 
 export function newId(prefix = '') {
-  return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+  return prefix + Date.now().toString(36) + randomBytes(6).toString('hex')
 }

@@ -27,7 +27,22 @@ export default defineNuxtConfig({
     sessionPassword: '',
     // Claude API
     anthropicApiKey: '',
-    anthropicModel: 'claude-opus-5',
+    // المهارات الاستراتيجية في باقتي نمو واحتراف
+    anthropicModelPremium: 'claude-opus-5',
+    // باقي المهارات
+    anthropicModelStandard: 'claude-sonnet-5',
+    // مفتاح صفحة التكاليف الداخلية (/api/admin/costs) — ٢٤ حرف أو أكثر
+    adminToken: '',
+    // مفتاح تشفير توكنات سلة في القاعدة
+    tokenEncryptionKey: '',
+    // سقف يومي لكل تشغيلات المتاجر التجريبية مجتمعة
+    demoDailyRuns: 200,
+    // لوحة الأدمن (/admin): إيميل + هاش كلمة المرور + سر 2FA — ولّدها بـ npm run admin:setup
+    adminEmail: '',
+    adminPasswordHash: '',
+    adminTotpSecret: '',
+    // تنبيهات الأخطاء والأمان (Slack / Discord / Telegram webhook)
+    alertWebhookUrl: '',
     // Salla Partners app
     sallaClientId: '',
     sallaClientSecret: '',
@@ -45,6 +60,35 @@ export default defineNuxtConfig({
       data: { driver: 'fs', base: './.data/db' },
     },
     serverAssets: [{ baseName: 'skills', dir: './assets/skills' }],
+    // تشغيل المهارة قد ياخذ دقائق مع التحليل العميق
+    vercel: { functions: { maxDuration: 300 } },
   },
   typescript: { strict: true },
+  // ترويسات الأمان في الإنتاج
+  $production: {
+    routeRules: {
+      '/**': {
+        headers: {
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https:",
+            "connect-src 'self'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self' https://accounts.salla.sa",
+            "object-src 'none'",
+          ].join('; '),
+          'X-Frame-Options': 'DENY',
+          'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+          'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+        },
+      },
+      '/api/**': { headers: { 'Cache-Control': 'no-store' } },
+    },
+  },
 })

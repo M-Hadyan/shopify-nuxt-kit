@@ -10,11 +10,16 @@
     "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
-    "sync-skills": "node scripts/sync-skills.mjs"
+    "sync-skills": "node scripts/sync-skills.mjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
+    "test:security": "nuxt build && node --test --test-concurrency=1 tests/*.test.mjs",
+    "admin:setup": "node scripts/admin-setup.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
+    "@upstash/redis": "^1.39.0",
     "dompurify": "^3.4.16",
+    "ioredis": "^5.11.1",
     "lucide-vue-next": "^1.0.0",
     "marked": "^18.0.14",
     "nuxt": "^4.5.2",
